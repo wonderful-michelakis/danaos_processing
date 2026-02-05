@@ -1,0 +1,23 @@
+%% Metadata
+%% entity_id: E007
+%% type: !!python/object/apply:pipeline_config.EntityType
+%% - diagram
+%% source_page: 1
+%% position: 7
+%% original_bbox:
+%% - 35.82267379760742
+%% - 739.3143081665039
+%% - 559.7647705078125
+%% - 79.486083984375
+%% confidence: 0.95
+%% processing_notes: 'Image classification: Flowchart showing procedures for reporting
+%%   concerns about the safety of another vessel.'
+%% 
+
+graph TD
+    A[Try to communicate.] -->|YES| B[Inform the other ship about your concern and try to obtain further information.]
+    A -->|NO| C[Try to obtain the maximum of information about the other vessel and inform the nearest RCC]
+    B -->|YES| D[After verifying that assistance is not required, proceed on passage. Keep records in logbook.]
+    B -->|NO| E[Sometimes the Master of a vessel in distress does not immediately contact the RCC]
+    C --> F[Try to keep track of the reported vessel, unless otherwise directed by the nearest RCC. In case no further assistance is required, ask permission from RCC to continue your voyage. Make Logbook entries.]
+    E --> C

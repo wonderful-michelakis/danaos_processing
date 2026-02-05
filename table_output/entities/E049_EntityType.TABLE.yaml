@@ -1,0 +1,52 @@
+# Metadata
+# entity_id: E049
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 5
+# position: 49
+# original_bbox:
+# - 29.11896514892578
+# - 739.9123382568359
+# - 554.314453125
+# - 79.24432373046875
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# 
+
+table:
+- 'Only for open type life-boats: Tricing pendants should be taught': 'Only for open
+    type life-boats: Bowsing tackles passed and boat bowsed alongside the boat deck
+    faceplate.'
+  : 
+- 'Only for open type life-boats: Tricing pendants should be taught': 'Only for open
+    type life-boats: Secure bowsing tackles hauling ropes.'
+  : 
+- 'Only for open type life-boats: Tricing pendants should be taught': 'Only for open
+    type life-boats: Tricing pendants trips.'
+  : 
+- 'Only for open type life-boats: Tricing pendants should be taught': 'Only for open
+    type life-boats: assigned personnel enters the boat and proceeds with following
+    tests: a. Check engine and gear box oil level and fuel tank level b. Check propulsion
+    system and transmission gear. c. Check steering system d. pump ''V'' belt/coupling
+    e. Ensures no loose equipment and secure f. Check no free oil in engine tray and
+    boat bilge''s g. Check Bilge pump for vacuum and plugs h. Check sea painter release
+    system'
+  : 
+- 'Only for open type life-boats: Tricing pendants should be taught': 'Only for the
+    enclosed type life-boats: Stop lowering when boat is brought as close as possible
+    to the water surface.'
+  : 
+- 'Only for open type life-boats: Tricing pendants should be taught': 'following tests
+    / actions: a. Check engine and gear box oil level and fuel tank level b. Check
+    propulsion system and transmission gear c. Check steering system d. Check sprinkler
+    system (if applicable) e. Check air cylinder system (if applicable) f. Check pump
+    / coupling g. Ensure no loose equipment and secure h. Check Bilge pump for vacuum
+    and plugs i. Check sea painter release system j. Confirm that the cooling seawater
+    valve is open k. Confirm that all crew boarded in the life boat are seated and
+    their seatbelts are fastened l. Start engine m. Confirm the hydrostatic interlock
+    (if applicable) is not triggered n. Pull out the release handle safety pin o.
+    Lift the hydrostatic interlock lever (if applicable) fully and hold it p. Pull
+    the release handle to the fully open position by one action q. Release the painter
+    Recovery operation for the enclosed type life-boats only : a. Manoeuvre the life
+    boat to come under boat falls b. Lift up the hooks'
+  : 

@@ -1,0 +1,16 @@
+# Metadata
+# entity_id: E044
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 4
+# position: 44
+# original_bbox:
+# - 28.86203956604004
+# - 714.7653350830078
+# - 553.93310546875
+# - 70.25946044921875
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# 
+
+table: []

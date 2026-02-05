@@ -1,0 +1,24 @@
+# Metadata
+# entity_id: E015
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 2
+# position: 15
+# original_bbox:
+# - 28.844236373901367
+# - 740.4972076416016
+# - 554.4036254882812
+# - 528.230224609375
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# 
+
+table:
+- group if known.: Assist Master in all communications with the helicopter
+- group if known.: Establishes communication with Ship Rescue Team at designated hoisting
+    area. There will be a high noise level under the helicopter, making voice communication
+    almost impossible. Arrange a set of hand signals among the crew who will assist.
+- group if known.: Transfers the patient (with lifejacket) to the hoisting area bearing
+    in mind that time is important
+- group if known.: Ensures that all team is properly wearing safety equipment, overalls,
+    boots, gloves except hats

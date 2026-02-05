@@ -1,0 +1,63 @@
+source_document: All chapters - EMERGENCY PROCEDURES MANUAL_p51.pdf
+processed_date: '2026-02-05T11:23:47.238206'
+total_entities: 7
+entity_type_counts:
+  ? !!python/object/apply:pipeline_config.EntityType
+  - image_text
+  : 1
+  ? !!python/object/apply:pipeline_config.EntityType
+  - text
+  : 5
+  ? !!python/object/apply:pipeline_config.EntityType
+  - diagram
+  : 1
+entities:
+- id: E001
+  type: !!python/object/apply:pipeline_config.EntityType
+  - image_text
+  page: 1
+  position: 1
+  confidence: 0.9
+  file: entities/E001_EntityType.IMAGE_TEXT.md
+- id: E002
+  type: !!python/object/apply:pipeline_config.EntityType
+  - text
+  page: 1
+  position: 2
+  confidence: 1.0
+  file: entities/E002_EntityType.TEXT.md
+- id: E003
+  type: !!python/object/apply:pipeline_config.EntityType
+  - text
+  page: 1
+  position: 3
+  confidence: 1.0
+  file: entities/E003_EntityType.TEXT.md
+- id: E004
+  type: !!python/object/apply:pipeline_config.EntityType
+  - text
+  page: 1
+  position: 4
+  confidence: 1.0
+  file: entities/E004_EntityType.TEXT.md
+- id: E005
+  type: !!python/object/apply:pipeline_config.EntityType
+  - text
+  page: 1
+  position: 5
+  confidence: 1.0
+  file: entities/E005_EntityType.TEXT.md
+- id: E006
+  type: !!python/object/apply:pipeline_config.EntityType
+  - text
+  page: 1
+  position: 6
+  confidence: 1.0
+  file: entities/E006_EntityType.TEXT.md
+- id: E007
+  type: !!python/object/apply:pipeline_config.EntityType
+  - diagram
+  page: 1
+  position: 7
+  confidence: 0.95
+  file: entities/E007_EntityType.DIAGRAM.mmd

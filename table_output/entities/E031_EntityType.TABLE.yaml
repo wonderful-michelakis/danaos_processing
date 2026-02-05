@@ -1,0 +1,18 @@
+# Metadata
+# entity_id: E031
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 3
+# position: 31
+# original_bbox:
+# - 34.8353157043457
+# - 691.7819213867188
+# - 554.9708251953125
+# - 66.3797607421875
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# 
+
+table:
+- Medical Evacuation Check-Off List: 1. VESSEL INFORMATION
+- Medical Evacuation Check-Off List: '2. PATIENTS VITAL STATISTICS:'
