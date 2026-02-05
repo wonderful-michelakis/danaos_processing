@@ -8,7 +8,7 @@ entities:
   - image_text
 - confidence: 0.85
   corrected: true
-  correction_timestamp: '2026-02-05T16:41:49.962724'
+  correction_timestamp: '2026-02-05T16:55:29.902751'
   correction_type: manual
   file: entities/E002_EntityType.TABLE.yaml
   id: E002
@@ -24,6 +24,9 @@ entities:
   type: !!python/object/apply:pipeline_config.EntityType
   - image_text
 - confidence: 0.85
+  corrected: true
+  correction_timestamp: '2026-02-05T16:58:05.002037'
+  correction_type: ai
   file: entities/E004_EntityType.TABLE.yaml
   id: E004
   page: 2

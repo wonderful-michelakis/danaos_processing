@@ -328,6 +328,65 @@ corrected: true
         with open(self.manifest_path, 'w', encoding='utf-8') as f:
             yaml.dump(manifest, f, default_flow_style=False, allow_unicode=True)
 
+    def _rebuild_final_document(self) -> Path:
+        """
+        Rebuild final_document.md from entity files
+
+        Returns:
+            Path to rebuilt final_document.md
+        """
+        # Load manifest to get entity order
+        with open(self.manifest_path, 'r', encoding='utf-8') as f:
+            manifest = yaml.load(f, Loader=yaml.Loader)
+
+        final_doc_path = self.output_dir / "final_document.md"
+
+        # Build final document from entities
+        content_parts = []
+
+        for entity in manifest.get('entities', []):
+            entity_id = entity['id']
+            entity_type = entity['type']
+            entity_page = entity['page']
+            entity_file = self.output_dir / entity['file']
+
+            # Convert enum to string if needed
+            if hasattr(entity_type, 'name'):
+                entity_type_str = entity_type.name
+            else:
+                entity_type_str = str(entity_type).upper()
+
+            # Read entity content (with frontmatter stripped)
+            entity_content = self._read_entity_file(entity_file)
+
+            # Add entity marker comment
+            content_parts.append(f"<!-- Entity: {entity_id} | Type: {entity_type_str} | Page: {entity_page} -->")
+            content_parts.append("")
+
+            # Wrap content based on type
+            file_ext = entity_file.suffix
+            if file_ext == '.yaml':
+                content_parts.append("```yaml")
+                content_parts.append(entity_content)
+                content_parts.append("```")
+            elif file_ext == '.mmd':
+                content_parts.append("```mermaid")
+                content_parts.append(entity_content)
+                content_parts.append("```")
+            else:
+                # Markdown content - add directly
+                content_parts.append(entity_content)
+
+            content_parts.append("")
+
+        # Write rebuilt final_document.md
+        final_content = "\n".join(content_parts)
+        with open(final_doc_path, 'w', encoding='utf-8') as f:
+            f.write(final_content)
+
+        print(f"✓ Rebuilt final_document.md from entity files")
+        return final_doc_path
+
     def regenerate_html(self) -> Path:
         """
         Regenerate HTML using DocumentConverter
@@ -337,12 +396,10 @@ corrected: true
         """
         from document_converter import DocumentConverter
 
-        final_doc_path = self.output_dir / "final_document.md"
+        # First, rebuild final_document.md from entity files
+        final_doc_path = self._rebuild_final_document()
 
-        if not final_doc_path.exists():
-            raise FileNotFoundError(f"final_document.md not found in {self.output_dir}")
-
-        # Create DocumentConverter and generate HTML
+        # Then create DocumentConverter and generate HTML
         converter = DocumentConverter(final_doc_path, self.output_dir)
         html_path = converter.convert()
 

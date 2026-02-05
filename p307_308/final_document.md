@@ -1,26 +1,14 @@
----
-document_title: "All Chapters - Fleet Instructions Manual P307-308"
-total_entities: 4
-processed_date: "2026-02-05 13:17:50"
-source_file: "All chapters - FLEET INSTRUCTIONS MANUAL_p307-308.pdf"
----
-
-# Document: All Chapters - Fleet Instructions Manual P307-308
-
-
-
-<!-- Entity: E001 | Type: EntityType.IMAGE_TEXT | Page: 1 -->
+<!-- Entity: E001 | Type: IMAGE_TEXT | Page: 1 -->
 
 ## danaos
 
 ### Safety Management System
 
-
-<!-- Entity: E002 | Type: EntityType.TABLE | Page: 1 -->
+<!-- Entity: E002 | Type: TABLE | Page: 1 -->
 
 ```yaml
 parameters:
-  - name: "Viscosity at 50°C"
+  - name: "Viscosity at 60°C"
     unit: "mm²/s"
     limit: "Max"
     values:
@@ -36,7 +24,7 @@ parameters:
       RMK_500: 500.0
       RMK_700: 700.0
 
-  - name: "Density at 15°C"
+  - name: "Density at 16°C"
     unit: "kg/m³"
     limit: "Max"
     values:
@@ -268,16 +256,14 @@ used_lubricating_oils:
     values: ""
 ```
 
-
-<!-- Entity: E003 | Type: EntityType.IMAGE_TEXT | Page: 2 -->
+<!-- Entity: E003 | Type: IMAGE_TEXT | Page: 2 -->
 
 ```
 ## danaos
 ### Safety Management System
 ```
 
-
-<!-- Entity: E004 | Type: EntityType.TABLE | Page: 2 -->
+<!-- Entity: E004 | Type: TABLE | Page: 2 -->
 
 ```yaml
 hydrogen_sulphide_notes:
@@ -293,4 +279,6 @@ hydrogen_sulphide_notes:
       description: "Effective only from 1 July 2012."
     - code: e
       description: "Strong acids are not acceptable, even at levels not detectable by the standard test methods for SAN. As acid numbers below the values stated in the table do not guarantee that the fuels are free from problems associated with the presence of acidic compounds, it is the responsibility of the supplier and the purchaser to agree upon an acceptable acid number."
+    - code: f
+      description: "Explosives are not permitted."
 ```

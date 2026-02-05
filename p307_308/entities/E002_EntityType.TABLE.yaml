@@ -5,7 +5,7 @@
 # position: 2
 # confidence: 0.85
 # corrected: true
-# correction_timestamp: 2026-02-05T16:41:49.971103
+# correction_timestamp: 2026-02-05T16:55:29.919130
 
 parameters:
   - name: "Viscosity at 60°C"
@@ -24,7 +24,7 @@ parameters:
       RMK_500: 500.0
       RMK_700: 700.0
 
-  - name: "Density at 15°C"
+  - name: "Density at 16°C"
     unit: "kg/m³"
     limit: "Max"
     values:

@@ -5,7 +5,7 @@ corrections:
       \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
       \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
       \ 380.0\n      RMK_500: 500.0\n      RMK_700: 700.0\n\n  - name: \"Density at\
-      \ 15°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
+      \ 16°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
       \ 920.0\n      RMB_30: 960.0\n      RMD_80: 975.0\n      RME_180: 991.0\n  \
       \    RMG_180: 991.0\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
       \ \"\"\n      RMK_380: \"\"\n      RMK_500: 991.0\n      RMK_700: 1010.0\n\n\
@@ -67,7 +67,7 @@ corrections:
       \ 30 and zinc >15; or Calcium > 30 and phosphorus > 15.\"\n  calcium_and_zinc_or_phosphorus:\n\
       \    unit: \"mg/kg\"\n    limit: \"-\"\n    values: \"\""
     correction_type: manual
-    original_content: "parameters:\n  - name: \"Viscosity at 50°C\"\n    unit: \"\
+    original_content: "parameters:\n  - name: \"Viscosity at 60°C\"\n    unit: \"\
       mm²/s\"\n    limit: \"Max\"\n    values:\n      RMA_10: 10.00\n      RMB_30:\
       \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
       \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
@@ -133,5 +133,38 @@ corrections:
       \ contain ULO when either one of the following conditions is met: Calcium >\
       \ 30 and zinc >15; or Calcium > 30 and phosphorus > 15.\"\n  calcium_and_zinc_or_phosphorus:\n\
       \    unit: \"mg/kg\"\n    limit: \"-\"\n    values: \"\""
-    reason: Wrong Temperature
-    timestamp: '2026-02-05T16:41:49.962724'
+    reason: Density was incorrect
+    timestamp: '2026-02-05T16:55:29.902751'
+  E004:
+    corrected_content: "hydrogen_sulphide_notes:\n  max_mg_per_kg: 2.00\n  notes:\n\
+      \    - code: a\n      description: \"This residual marine fuel grade is formerly\
+      \ DMC distillate under ISO 8217:2005.\"\n    - code: b\n      description: \"\
+      Purchasers shall ensure that this pour point is suitable for the equipment on\
+      \ board, especially in cold climates.\"\n    - code: c\n      description: \"\
+      The purchaser shall define the maximum sulphur content according to the relevant\
+      \ statutory requirements.\"\n    - code: d\n      description: \"Effective only\
+      \ from 1 July 2012.\"\n    - code: e\n      description: \"Strong acids are\
+      \ not acceptable, even at levels not detectable by the standard test methods\
+      \ for SAN. As acid numbers below the values stated in the table do not guarantee\
+      \ that the fuels are free from problems associated with the presence of acidic\
+      \ compounds, it is the responsibility of the supplier and the purchaser to agree\
+      \ upon an acceptable acid number.\"\n    - code: f\n      description: \"Explosives\
+      \ are not permitted.\""
+    correction_type: ai
+    original_content: "hydrogen_sulphide_notes:\n  max_mg_per_kg: 2.00\n  notes:\n\
+      \    - code: a\n      description: \"This residual marine fuel grade is formerly\
+      \ DMC distillate under ISO 8217:2005.\"\n    - code: b\n      description: \"\
+      Purchasers shall ensure that this pour point is suitable for the equipment on\
+      \ board, especially in cold climates.\"\n    - code: c\n      description: \"\
+      The purchaser shall define the maximum sulphur content according to the relevant\
+      \ statutory requirements.\"\n    - code: d\n      description: \"Effective only\
+      \ from 1 July 2012.\"\n    - code: e\n      description: \"Strong acids are\
+      \ not acceptable, even at levels not detectable by the standard test methods\
+      \ for SAN. As acid numbers below the values stated in the table do not guarantee\
+      \ that the fuels are free from problems associated with the presence of acidic\
+      \ compounds, it is the responsibility of the supplier and the purchaser to agree\
+      \ upon an acceptable acid number.\""
+    reason: AI-assisted correction
+    timestamp: '2026-02-05T16:58:05.002037'
+    user_prompt: Add another line in the table with Code f saying that explosives
+      are not permitted
