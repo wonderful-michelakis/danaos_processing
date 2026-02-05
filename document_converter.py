@@ -126,12 +126,79 @@ class DocumentConverter:
             elif 'parameters' in data:
                 # Special handling for parameter tables
                 return self._parameters_to_html(data['parameters'], entity.entity_id)
+            elif self._has_list_of_dicts(data):
+                # Handle structures like {actions: [...], tasks: [...], notes: [...]}
+                return self._list_of_dicts_to_html(data, entity.entity_id)
             else:
                 # Generic dict → table
                 return self._dict_to_html_table(data, entity.entity_id)
 
         except yaml.YAMLError as e:
             return f'<p class="error">YAML parse error in {entity.entity_id}: {e}</p>'
+
+    def _has_list_of_dicts(self, data: dict) -> bool:
+        """Check if dict contains a list of dictionaries as a value (recursively)"""
+        for value in data.values():
+            if isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                return True
+            # Check nested dicts
+            if isinstance(value, dict):
+                if self._has_list_of_dicts(value):
+                    return True
+        return False
+
+    def _list_of_dicts_to_html(self, data: dict, entity_id: str, level: int = 0) -> str:
+        """Convert a dict containing lists of dicts to HTML tables (recursive)"""
+        html = f'<div class="table-container" id="{entity_id}">\n' if level == 0 else ''
+
+        for key, value in data.items():
+            # Handle nested dict that might contain lists
+            if isinstance(value, dict):
+                # Add section header for nested structure
+                html += f'  <h4 class="table-section-header">{key.replace("_", " ").title()}</h4>\n'
+                # Recursively process nested dict
+                nested_html = self._list_of_dicts_to_html(value, entity_id, level + 1)
+                html += nested_html
+
+            # Handle list of dicts
+            elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                # Add section header if not at top level or if there are multiple sections
+                if level > 0 or len([v for v in data.values() if isinstance(v, list)]) > 1:
+                    html += f'  <h4 class="table-section-header">{key.replace("_", " ").title()}</h4>\n'
+
+                # Get all unique keys from all dicts in the list
+                all_keys = set()
+                for item in value:
+                    all_keys.update(item.keys())
+                headers = sorted(list(all_keys))
+
+                html += '  <table class="data-table">\n'
+                html += '    <thead>\n      <tr>\n'
+                for header in headers:
+                    html += f'        <th>{header.replace("_", " ").title()}</th>\n'
+                html += '      </tr>\n    </thead>\n'
+                html += '    <tbody>\n'
+
+                for item in value:
+                    html += '      <tr>\n'
+                    for header in headers:
+                        cell_value = item.get(header, '')
+                        # Handle list values (like responsible: [Master, Engineer])
+                        if isinstance(cell_value, list):
+                            cell_value = ', '.join(str(v) for v in cell_value)
+                        html += f'        <td>{cell_value}</td>\n'
+                    html += '      </tr>\n'
+
+                html += '    </tbody>\n'
+                html += '  </table>\n'
+
+            # Handle scalar values (like max_mg_per_kg: 2.00)
+            elif not isinstance(value, (list, dict)):
+                html += f'  <p class="table-note"><strong>{key.replace("_", " ").title()}:</strong> {value}</p>\n'
+
+        if level == 0:
+            html += '</div>\n'
+        return html
 
     def _yaml_table_to_html(self, table_data: list, entity_id: str) -> str:
         """Convert YAML list of dicts to HTML table"""
@@ -312,15 +379,33 @@ class DocumentConverter:
             return f'<div class="text-content" id="{entity.entity_id}">\n<pre>{escaped_content}</pre>\n</div>\n'
 
     def generate_html(self) -> Path:
-        """Generate complete HTML document"""
+        """Generate complete HTML document with page-based grouping"""
 
-        # Build entity sections
-        entities_html = ""
+        # Group entities by page
+        pages = {}
         for entity in self.entities:
-            entities_html += f'<section class="entity" data-entity="{entity.entity_id}" data-page="{entity.page}">\n'
-            entities_html += f'  <div class="entity-badge">Page {entity.page}</div>\n'
-            entities_html += entity.rendered_html
-            entities_html += '</section>\n\n'
+            page_num = entity.page
+            if page_num not in pages:
+                pages[page_num] = []
+            pages[page_num].append(entity)
+
+        # Build HTML with page sections
+        entities_html = ""
+        for page_num in sorted(pages.keys()):
+            page_entities = pages[page_num]
+
+            # Page separator/header
+            entities_html += f'<div class="page-section" data-page="{page_num}">\n'
+            entities_html += f'  <div class="page-header">Page {page_num}</div>\n'
+
+            # All entities for this page
+            for entity in page_entities:
+                entities_html += f'  <section class="entity" data-entity="{entity.entity_id}" data-page="{entity.page}">\n'
+                entities_html += f'    <div class="entity-badge">{entity.entity_id}</div>\n'
+                entities_html += '    ' + entity.rendered_html.replace('\n', '\n    ')
+                entities_html += '  </section>\n\n'
+
+            entities_html += '</div>\n\n'
 
         # Generate full HTML
         html = self._get_html_template(entities_html)
@@ -417,26 +502,48 @@ class DocumentConverter:
             margin: 0 auto;
         }
 
+        /* Page sections */
+        .page-section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #dee2e6;
+        }
+
+        .page-section:last-child {
+            border-bottom: none;
+        }
+
+        .page-header {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #495057;
+        }
+
         /* Entity sections */
         .entity {
             background: white;
             padding: 30px;
-            margin-bottom: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             position: relative;
         }
 
         .entity-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #667eea;
+            top: 10px;
+            right: 10px;
+            background: #6c757d;
             color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
+            font-family: monospace;
         }
 
         /* Tables */
@@ -445,10 +552,28 @@ class DocumentConverter:
             margin: 20px 0;
         }
 
+        .table-section-header {
+            margin: 20px 0 10px 0;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .table-note {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #6c757d;
+            font-size: 0.95rem;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.95rem;
+            margin-bottom: 20px;
         }
 
         .data-table thead {

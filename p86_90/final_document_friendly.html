@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Chapters - Emergency Procedures Manual P86-90</title>
+    <style>
+        
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Header */
+        .document-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .document-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .document-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Main content */
+        .document-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Page sections */
+        .page-section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #dee2e6;
+        }
+
+        .page-section:last-child {
+            border-bottom: none;
+        }
+
+        .page-header {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        /* Entity sections */
+        .entity {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .entity-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #6c757d;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .table-section-header {
+            margin: 20px 0 10px 0;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .table-note {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .data-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Parameter tables */
+        .parameters-table .param-name {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .parameters-table .param-unit {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .parameters-table .param-limit {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .diagram-caption {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+            text-align: left;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .diagram-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+
+        .diagram-fallback {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+
+        .diagram-fallback details {
+            margin-top: 15px;
+        }
+
+        .diagram-fallback summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .diagram-fallback pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        /* Text content */
+        .text-content {
+            line-height: 1.8;
+        }
+
+        .text-content h1,
+        .text-content h2,
+        .text-content h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .text-content h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .text-content h3 {
+            font-size: 1.35rem;
+            color: #495057;
+        }
+
+        .text-content p {
+            margin-bottom: 15px;
+        }
+
+        .text-content ul,
+        .text-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .text-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Error states */
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .empty-table {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .document-footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .document-header {
+                background: #667eea;
+                color: white;
+            }
+
+            .entity {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+
+            .entity-badge {
+                background: #495057;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .document-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .document-meta {
+                font-size: 0.85rem;
+            }
+
+            .entity {
+                padding: 20px;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 10px;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <header class="document-header">
+        <h1>All Chapters - Emergency Procedures Manual P86-90</h1>
+        <div class="document-meta">
+            <span class="meta-item">Source: All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf</span>
+            <span class="meta-item">Processed: 2026-02-05 12:45:03</span>
+            <span class="meta-item">Total Entities: 51</span>
+        </div>
+    </header>
+
+    <main class="document-content">
+        <div class="page-section" data-page="1">
+  <div class="page-header">Page 1</div>
+  <section class="entity" data-entity="E001" data-page="1">
+    <div class="entity-badge">E001</div>
+    <div class="text-content" id="E001">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## Danaos</span>
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E002" data-page="1">
+    <div class="entity-badge">E002</div>
+    <div class="text-content" id="E002">
+    <h2>Emergency Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E003" data-page="1">
+    <div class="entity-badge">E003</div>
+    <div class="text-content" id="E003">
+    <h2>Chapter :                      10</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E004" data-page="1">
+    <div class="entity-badge">E004</div>
+    <div class="text-content" id="E004">
+    <h2>Emergency Response Checklists</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E005" data-page="1">
+    <div class="entity-badge">E005</div>
+    <div class="text-content" id="E005">
+    <h2>10.13    Helicopter Rescue Checklist</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E006" data-page="1">
+    <div class="entity-badge">E006</div>
+    <div class="table-container" id="E006">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Responsible</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Check Procedures for requesting Medical Assistance.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Pass on to the station concerned the following information, which should be updated in case of change. This is vital information which the rescue crew will use to plot the rendezvous: Vessels position, Course and speed, Weather conditions (speed and wind direction), Sea state (especially height of swell), Vessel type and characteristics (colour of funnel/topsides), Call sign and establish means of communication, Advise proposed area for pick-up. If vessel is beyond helicopter range, advise diversion intentions so that an appointment position may be arranged. Prepares passport, seaman’s book medical papers, vaccination certificate.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Supply full medical information: Can the patient be picked up by stretcher or not (always helicopter stretcher should be used), Advise any change in patients condition.</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>During Transfer: Switch off radars before the helicopter arrives. Follow Helicopter instructions as to course to steer (normally the course should be 300 to the port bow). If no communication with helicopter, maintain a steady course, into wind. A wind across the deck of 10-20 knots is ideal. Under no circumstances alter course  or speed while winching is taking place. If no radio contact is possible with the helicopter, then signal to the pilot by hand when you are ready for the hoisting.</td>
+            <td>Master, GMDSS Operator</td>
+          </tr>
+          <tr>
+            <td>Keeps Master advised of Patients condition.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Select, clear and mark the hoist area with a minimum 15 mtrs radius.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Establishes with Master signalling procedure to be used during operation.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Removes with crew assistance any obstructions from the designated pick-up area (remove antennas-stow derricks/booms-remove any loose equipment).</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>In case poop is used flagstaff should be moved.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Prepare rescue team with lifejackets-and stand-by foam extinguishers and applicators if applicable.</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>Have ready smoke signal in case of daylight rescue to assist in helicopter approach (will indicate wind direction at deck level).</td>
+            <td>Master</td>
+          </tr>
+          <tr>
+            <td>In case of night approach illuminate the rescue area but avoid blinding helicopter crew. Any obstructions, which cannot be removed, shall be properly illuminated. Preferably all lights should be vertically for recognition and as soon as helicopter has identified position switch off this lighting.</td>
+            <td>Master, Ch. Engineer</td>
+          </tr>
+          <tr>
+            <td>Ensures that letter containing details about his medical treatment on board and medicines have been supplied including blood type.</td>
+            <td>Master</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E007" data-page="1">
+    <div class="entity-badge">E007</div>
+    <div class="text-content" id="E007">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E008" data-page="1">
+    <div class="entity-badge">E008</div>
+    <div class="text-content" id="E008">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="2">
+  <div class="page-header">Page 2</div>
+  <section class="entity" data-entity="E009" data-page="2">
+    <div class="entity-badge">E009</div>
+    <div class="text-content" id="E009">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## danams</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E010" data-page="2">
+    <div class="entity-badge">E010</div>
+    <div class="text-content" id="E010">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E011" data-page="2">
+    <div class="entity-badge">E011</div>
+    <div class="text-content" id="E011">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E012" data-page="2">
+    <div class="entity-badge">E012</div>
+    <div class="text-content" id="E012">
+    <h2>Emergency Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E013" data-page="2">
+    <div class="entity-badge">E013</div>
+    <div class="text-content" id="E013">
+    <h2>Chapter :                      10</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E014" data-page="2">
+    <div class="entity-badge">E014</div>
+    <div class="text-content" id="E014">
+    <h2>Emergency Response Checklists</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E015" data-page="2">
+    <div class="entity-badge">E015</div>
+    <div class="table-container" id="E015">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Assist Master in all communications with the helicopter</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Establishes communication with Ship Rescue Team at designated hoisting area. There will be a high noise level under the helicopter, making voice communication almost impossible. Arrange a set of hand signals among the crew who will assist.</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Transfers the patient (with lifejacket) to the hoisting area bearing in mind that time is important</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Ensures that all team is properly wearing safety equipment, overalls, boots, gloves except hats</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Maintains vessels speed as directed by the Master</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Summons all engine crew on stand-by stations and ensures fire pumps are running and there is adequate pressure on deck for immediate use.</td>
+            <td>complete</td>
+          </tr>
+          <tr>
+            <td>Has ready-if appropriate- foam pumps and piping line up for immediate use in case of need.</td>
+            <td>complete</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E016" data-page="2">
+    <div class="entity-badge">E016</div>
+    <div class="text-content" id="E016">
+    <h2>During Transfer</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E017" data-page="2">
+    <div class="entity-badge">E017</div>
+    <div class="text-content" id="E017">
+    <p>If  possible,  move  the  patient  to  a  position  as  close  to  the  hoist  area  as  his  condition  permits  TIME  IS IMPORTANT.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E018" data-page="2">
+    <div class="entity-badge">E018</div>
+    <div class="text-content" id="E018">
+    <p>1Allow  the  hoisting  apparatus  to  contact  some  steel  part  of  the  ship  before  handling  it.  This  will release any static electricity</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E019" data-page="2">
+    <div class="entity-badge">E019</div>
+    <div class="text-content" id="E019">
+    <p>2-  A  guide-line  may  be  attached  to  the  apparatus.    Keep  same  clear  from  obstacles.  The  handling  of  this  line (uncharged) is without danger;</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E020" data-page="2">
+    <div class="entity-badge">E020</div>
+    <div class="text-content" id="E020">
+    <p>3- Take care that the patient's hands remain inside the stretcher. Let the helicopter's winch-man know when he can start heaving. It is worth noting that a crew man will usually be lowered to the ship's deck to effect the lifting of the stretcher or casualty.  The motion of the hand is Thumb Up</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E021" data-page="2">
+    <div class="entity-badge">E021</div>
+    <div class="text-content" id="E021">
+    <p>4- Should it be necessary to unhook the hoisting apparatus; keep the hook clear from the ship and signal-By thumb up-when the cleared hook can be hove in. Never fasten the hook on deck and the stretcher is never to be moved without being unhooked</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E022" data-page="2">
+    <div class="entity-badge">E022</div>
+    <div class="text-content" id="E022">
+    <p>5- As soon as the patient has been placed in the stretcher then signal the pilot to slack off the wire, hook on and heave. Prevent the stretcher from swinging during hoisting. Use the guide-line, if any, for stabilising and steering the stretcher. Take care that the line is free from feet and legs of the ship's crew!</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E023" data-page="2">
+    <div class="entity-badge">E023</div>
+    <div class="text-content" id="E023">
+    <h2>Hi-Line Technique</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E024" data-page="2">
+    <div class="entity-badge">E024</div>
+    <div class="text-content" id="E024">
+    <p>In very bad weather, it may not be possible to lower the stretcher for a crewman and stop directly on to the deck. In such a case, a rope extension of the hoist line may be lowered to the ship.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E025" data-page="2">
+    <div class="entity-badge">E025</div>
+    <div class="text-content" id="E025">
+    <p>This should be handled by a member of the ship's crew and taken in as the helicopter pays out the hoist cable. Coil down the line on deck clear of snags, but do not make it fast. The helicopter will pay out the full scope of wire and descend, probably to one side of the vessel, while the ship's crew continue to take in the slack until the winch hook and strop are on board.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E026" data-page="2">
+    <div class="entity-badge">E026</div>
+    <div class="text-content" id="E026">
+    <p>Whilst taking in the slack, remember that the ship and the helicopter will be moving relative to each other-take great care to keep the line outboard of all obstruction.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E027" data-page="2">
+    <div class="entity-badge">E027</div>
+    <div class="text-content" id="E027">
+    <p>A member of the helicopter crew may or may not be lowered with strop. The casualty will then be secured in the strop and, when he or other member of the ship's crew signifies that he is ready, the helicopter will climb and take in the wire. Pay out the extension rope, keeping enough weight on it to keep it taut; until the end is reached, then cast the end clear of the ship's side; unless further evacuation of crew is intended when, if possible, the end of the line should be retained on board to make recovery of the stop for the next man easier-but do not make the line fast. When large numbers of casualties are to be lifted, two strops may be offered simultaneously; one casualty is to be placed in each strop in the normal manner</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="3">
+  <div class="page-header">Page 3</div>
+  <section class="entity" data-entity="E028" data-page="3">
+    <div class="entity-badge">E028</div>
+    <div class="text-content" id="E028">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E029" data-page="3">
+    <div class="entity-badge">E029</div>
+    <div class="text-content" id="E029">
+    <h2>Medico</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E030" data-page="3">
+    <div class="entity-badge">E030</div>
+    <div class="text-content" id="E030">
+    <p>The  following  information  is  required  for  Medical  Evacuation.  Master  or  crew  member  in  charge  should  have  this information ready for the radio man from the Coast Guard helicopter.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E031" data-page="3">
+    <div class="entity-badge">E031</div>
+    <div class="table-container" id="E031">
+      <table class="data-table">
+        <tbody>
+          <tr>
+            <th>vessel_information</th>
+            <td>{'name_type': '', 'call_sign': '', 'nationality_port_of_registry': '', 'description_of_vessel': '', 'frequencies_available': '', 'position': '', 'course': '', 'speed': '', 'person_calling': ''}</td>
+          </tr>
+          <tr>
+            <th>patients_vital_statistics</th>
+            <td>{'name': '', 'home_port': '', 'sex': '', 'age': '', 'seamans_pager_no': '', 'injury_occurrence': '', 'bleeding': '', 'bleeding_location': '', 'bleeding_amount': '', 'temperature': '', 'pulse': '', 'respiration_difficulty': '', 'conscious': '', 'pain_location': '', 'type_of_pain': '', 'patient_coherent': '', 'can_walk': '', 'treatment_meds_given': '', 'treatment_time': '', 'medical_chest': ''}</td>
+          </tr>
+          <tr>
+            <th>weather_and_sea_conditions</th>
+            <td>{'wind_velocity_direction': '', 'sea_direction_height': '', 'visibility': ''}</td>
+          </tr>
+          <tr>
+            <th>evacuation_necessity</th>
+            <td>{'master_certificates_papers': '', 'radioman_instructions': ''}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E032" data-page="3">
+    <div class="entity-badge">E032</div>
+    <div class="text-content" id="E032">
+    <h2>Emergency Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E033" data-page="3">
+    <div class="entity-badge">E033</div>
+    <div class="text-content" id="E033">
+    <h2>Chapter :                      10</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E034" data-page="3">
+    <div class="entity-badge">E034</div>
+    <div class="text-content" id="E034">
+    <h2>Emergency Response Checklists</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E035" data-page="3">
+    <div class="entity-badge">E035</div>
+    <div class="text-content" id="E035">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E036" data-page="3">
+    <div class="entity-badge">E036</div>
+    <div class="text-content" id="E036">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="4">
+  <div class="page-header">Page 4</div>
+  <section class="entity" data-entity="E037" data-page="4">
+    <div class="entity-badge">E037</div>
+    <div class="text-content" id="E037">
+    <h2>danaos</h2>
+    
+    <h3>Safety Management System</h3>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E038" data-page="4">
+    <div class="entity-badge">E038</div>
+    <div class="text-content" id="E038">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E039" data-page="4">
+    <div class="entity-badge">E039</div>
+    <div class="text-content" id="E039">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E040" data-page="4">
+    <div class="entity-badge">E040</div>
+    <div class="text-content" id="E040">
+    <h2>Emergency Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E041" data-page="4">
+    <div class="entity-badge">E041</div>
+    <div class="text-content" id="E041">
+    <h2>Chapter :                     10</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E042" data-page="4">
+    <div class="entity-badge">E042</div>
+    <div class="text-content" id="E042">
+    <h2>Emergency Response Checklists</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E043" data-page="4">
+    <div class="entity-badge">E043</div>
+    <div class="text-content" id="E043">
+    <p>10.14    LOWERING THE LIFEBOATS AT THE SEA LEVEL CHECKLIST</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E044" data-page="4">
+    <div class="entity-badge">E044</div>
+    <div class="table-container" id="E044">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>On Bridge supervising the whole process.</td>
+            <td>{'master': True, 'officers_and_crew': False, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>Announce by public addresser the drill.</td>
+            <td>{'master': True, 'officers_and_crew': False, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>Sounds the alarm signal.</td>
+            <td>{'master': True, 'officers_and_crew': False, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>On receiving the alarm proceeds to the assigned Muster stations</td>
+            <td>{'master': False, 'officers_and_crew': True, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>All personnel are carrying protective clothing and wear.</td>
+            <td>{'master': False, 'officers_and_crew': True, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>Assigned personnel carry additional stores and equipment.</td>
+            <td>{'master': False, 'officers_and_crew': True, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>Prepare transceivers (portable VHFs), and confirm the communication condition.</td>
+            <td>{'master': True, 'officers_and_crew': False, 'sequential_actions': False}</td>
+          </tr>
+          <tr>
+            <td>Complete Mustering and report to the Master</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Wire falls taut (No slacks)</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Hooks release system locked.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Tricings Pendants locked.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>"Dead" man’s brake lever ON.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Remote Brake Pull-wire passed in position, clear of any obstruction.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Entrance hatches secured open from inside (if closed type l/b).</td>
+            <td>{'master': True, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Painter deployed and made fast on main deck (confirm the connection of the painter as far forward as practicable inboard of the falls but outboard of everything else).</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Embarkation ladders deployed overboard.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Wind the boat fall manually to take off the slack. Pull out the safety pin of the davit arm stop, if fitted. Release the davit arm stop by operating the handle.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Boat batteries charge cable disconnected and ensures batteries loaded.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Gripes tripped and cleared.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Ensure the bottom plug is fitted and tight</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Connect the push-button switch for recovering to the receptacle</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>All personnel clear the boat and launching area below the boat. No persons on the davits system.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Brake released. Lowering commences.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Allow cradles and boat to travel down by gravity smoothly and under constant speed.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Confirm that the remote control wire is drawn into the lifeboat.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+          <tr>
+            <td>Only for open type life-boats: Stop lowering when boat is brought to embarkation level.</td>
+            <td>{'master': False, 'officers_and_crew': False, 'sequential_actions': True}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="5">
+  <div class="page-header">Page 5</div>
+  <section class="entity" data-entity="E045" data-page="5">
+    <div class="entity-badge">E045</div>
+    <div class="text-content" id="E045">
+    <h2>danaos</h2>
+    
+    <h3>Safety Management System</h3>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E046" data-page="5">
+    <div class="entity-badge">E046</div>
+    <div class="text-content" id="E046">
+    <h2>Emergency Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E047" data-page="5">
+    <div class="entity-badge">E047</div>
+    <div class="text-content" id="E047">
+    <h2>Chapter :                     10</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E048" data-page="5">
+    <div class="entity-badge">E048</div>
+    <div class="text-content" id="E048">
+    <h2>Emergency Response Checklists</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E049" data-page="5">
+    <div class="entity-badge">E049</div>
+    <div class="table-container" id="E049">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Only for open type life-boats: Tricing pendants should be taught</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Only for open type life-boats: Bowsing tackles passed and boat bowsed alongside the boat deck faceplate.</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Only for open type life-boats: Secure bowsing tackles hauling ropes.</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Only for open type life-boats: Tricing pendants trips.</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Only for open type life-boats: assigned personnel enters the boat and proceeds with following tests: a. Check engine and gear box oil level and fuel tank level b. Check propulsion system and transmission gear. c. Check steering system d. pump 'V' belt/coupling e. Ensures no loose equipment and secure f. Check no free oil in engine tray and boat bilge's g. Check Bilge pump for vacuum and plugs h. Check sea painter release system</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Only for the enclosed type life-boats: Stop lowering when boat is brought as close as possible to the water surface.</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>following tests / actions: a. Check engine and gear box oil level and fuel tank level b. Check propulsion system and transmission gear c. Check steering system d. Check sprinkler system (if applicable) e. Check air cylinder system (if applicable) f. Check pump / coupling g. Ensure no loose equipment and secure h. Check Bilge pump for vacuum and plugs i. Check sea painter release system j. Confirm that the cooling seawater valve is open k. Confirm that all crew boarded in the life boat are seated and their seatbelts are fastened l. Start engine m. Confirm the hydrostatic interlock (if applicable) is not triggered n. Pull out the release handle safety pin o. Lift the hydrostatic interlock lever (if applicable) fully and hold it p. Pull the release handle to the fully open position by one action q. Release the painter Recovery operation for the enclosed type life-boats only : a. Manoeuvre the life boat to come under boat falls b. Lift up the hooks</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E050" data-page="5">
+    <div class="entity-badge">E050</div>
+    <div class="text-content" id="E050">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E051" data-page="5">
+    <div class="entity-badge">E051</div>
+    <div class="text-content" id="E051">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+</div>
+
+
+    </main>
+
+    <footer class="document-footer">
+        <p>Generated from technical document • Powered by Document Processing Pipeline</p>
+    </footer>
+</body>
+</html>
