@@ -11,6 +11,7 @@ class DocumentComparator {
         this.scale = 1.0;
         this.syncScrollEnabled = true;
         this.rendering = false;
+        this.correctionModal = null;  // NEW: Reference to CorrectionModal
 
         // DOM elements
         this.canvas = document.getElementById('pdf-canvas');
@@ -36,6 +37,8 @@ class DocumentComparator {
                 this.loadHTML()
             ]);
             this.setupEventListeners();
+            this.correctionModal = new CorrectionModal(this);  // NEW: Initialize CorrectionModal
+            this.setupEntityClickHandlers();  // NEW: Set up entity click handlers
             await this.renderPage(this.currentPage);
         } catch (error) {
             console.error('Initialization error:', error);
@@ -348,6 +351,49 @@ class DocumentComparator {
         setTimeout(() => {
             errorDiv.remove();
         }, 5000);
+    }
+
+    setupEntityClickHandlers() {
+        // Add click handlers to all entity badges
+        document.addEventListener('click', (e) => {
+            // Check if clicked element is entity badge or within entity
+            if (e.target.classList.contains('entity-badge')) {
+                const entityId = e.target.textContent.trim();
+                this.correctionModal.open(entityId);
+            }
+        });
+
+        // Add hover effect to entity badges
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.entity-badge').forEach(badge => {
+                badge.style.cursor = 'pointer';
+                badge.title = 'Click to edit this entity';
+            });
+        });
+        observer.observe(this.htmlContent, {childList: true, subtree: true});
+    }
+
+    async reloadHTMLContent() {
+        // Reload HTML content after correction
+        await this.loadHTML();
+        // Re-render current page
+        await this.renderPage(this.currentPage);
+    }
+
+    highlightCorrectedEntity(entityId) {
+        // Find entity and add 'corrected' class
+        const entitySection = document.querySelector(`section[data-entity="${entityId}"]`);
+        if (entitySection) {
+            entitySection.classList.add('corrected');
+
+            // Scroll to entity
+            entitySection.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+                entitySection.classList.remove('corrected');
+            }, 3000);
+        }
     }
 }
 

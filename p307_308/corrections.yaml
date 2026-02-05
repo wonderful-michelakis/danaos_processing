@@ -1,0 +1,137 @@
+corrections:
+  E002:
+    corrected_content: "parameters:\n  - name: \"Viscosity at 60°C\"\n    unit: \"\
+      mm²/s\"\n    limit: \"Max\"\n    values:\n      RMA_10: 10.00\n      RMB_30:\
+      \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
+      \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
+      \ 380.0\n      RMK_500: 500.0\n      RMK_700: 700.0\n\n  - name: \"Density at\
+      \ 15°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
+      \ 920.0\n      RMB_30: 960.0\n      RMD_80: 975.0\n      RME_180: 991.0\n  \
+      \    RMG_180: 991.0\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: 991.0\n      RMK_700: 1010.0\n\n\
+      \  - name: \"Micro Carbon Residue\"\n    unit: \"% m/m\"\n    limit: \"Max\"\
+      \n    values:\n      RMA_10: 2.50\n      RMB_30: 10.00\n      RMD_80: 14.00\n\
+      \      RME_180: 15.00\n      RMG_180: 18.00\n      RMG_380: \"\"\n      RMG_500:\
+      \ \"\"\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500: 20.00\n   \
+      \   RMK_700: \"\"\n\n  - name: \"Aluminium + Silicon\"\n    unit: \"mg/kg\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 25\n      RMB_30: \"\"\n   \
+      \   RMD_80: 40\n      RME_180: \"\"\n      RMG_180: 50\n      RMG_380: \"\"\n\
+      \      RMG_500: 60\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\" \n\n  - name: \"Sodium\"\n    unit: \"mg/kg\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 50\n      RMB_30: 100\n    \
+      \  RMD_80: \"\"\n      RME_180: 50\n      RMG_180: \"\"\n      RMG_380: \"\"\
+      \n      RMG_500: 100\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"    \n\n  - name: \"Ash\"\n    unit: \"% m/m\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 0.040\n      RMB_30: \"\"\n\
+      \      RMD_80: 0.070\n      RME_180: \"\"\n      RMG_180: \"\"\n      RMG_380:\
+      \ 0.100\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 0.150\n  \
+      \    RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Vanadium\"\n    unit:\
+      \ \"mg/kg\"\n    limit: \"Max\"\n    values:\n      RMA_10: 50\n      RMB_30:\
+      \ 150\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: 350\n      RMG_380:\
+      \ \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 450\n     \
+      \ RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"CCAI\"\n    unit: \"-\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 850\n      RMB_30: \"\"\n  \
+      \    RMD_80: 860\n      RME_180: \"\"\n      RMG_180: 860\n      RMG_380: \"\
+      \"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 870\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Water\"\n    unit: \"% V/V\"\n  \
+      \  limit: \"Max\"\n    values:\n      RMA_10: 0.30\n      RMB_30: \"\"\n   \
+      \   RMD_80: \"\"\n      RME_180: 0.50\n      RMG_180: \"\"\n      RMG_380: \"\
+      \"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Pour point (upper), Summer\"\n  \
+      \  unit: \"°C\"\n    limit: \"Max\"\n    values:\n      RMA_10: 6\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: 30\n      RMG_380:\
+      \ \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 30\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Pour point (upper), Winter\"\n  \
+      \  unit: \"°C\"\n    limit: \"Max\"\n    values:\n      RMA_10: 0\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: \"\"\n     \
+      \ RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 30\n\
+      \      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Flash point\"\n   \
+      \ unit: \"°C\"\n    limit: \"Min\"\n    values:\n      RMA_10: 60.0\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: \"\"\n     \
+      \ RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: \"\
+      \"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Sulphur\"\n    unit:\
+      \ \"% m/m\"\n    limit: \"Max\"\n    values:\n      RMA_10: \"Statutory requirements\"\
+      \n      RMB_30: \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180:\
+      \ \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n    \
+      \  RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Total\
+      \ Sediment, aged\"\n    unit: \"% m/m\"\n    limit: \"Max\"\n    values:\n \
+      \     RMA_10: \"\"\n      RMB_30: 0.10\n      RMD_80: \"\"\n      RME_180: \"\
+      \"\n      RMG_180: \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  -\
+      \ name: \"Acid Number\"\n    unit: \"mgKOH/g\"\n    limit: \"Max\"\n    values:\n\
+      \      RMA_10: \"\"\n      RMB_30: \"\"\n      RMD_80: 2.5\n      RME_180: \"\
+      \"\n      RMG_180: \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\nused_lubricating_oils:\n\
+      \  description: \"The fuel shall be free from ULO, and shall be considered to\
+      \ contain ULO when either one of the following conditions is met: Calcium >\
+      \ 30 and zinc >15; or Calcium > 30 and phosphorus > 15.\"\n  calcium_and_zinc_or_phosphorus:\n\
+      \    unit: \"mg/kg\"\n    limit: \"-\"\n    values: \"\""
+    correction_type: manual
+    original_content: "parameters:\n  - name: \"Viscosity at 50°C\"\n    unit: \"\
+      mm²/s\"\n    limit: \"Max\"\n    values:\n      RMA_10: 10.00\n      RMB_30:\
+      \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
+      \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
+      \ 380.0\n      RMK_500: 500.0\n      RMK_700: 700.0\n\n  - name: \"Density at\
+      \ 15°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
+      \ 920.0\n      RMB_30: 960.0\n      RMD_80: 975.0\n      RME_180: 991.0\n  \
+      \    RMG_180: 991.0\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: 991.0\n      RMK_700: 1010.0\n\n\
+      \  - name: \"Micro Carbon Residue\"\n    unit: \"% m/m\"\n    limit: \"Max\"\
+      \n    values:\n      RMA_10: 2.50\n      RMB_30: 10.00\n      RMD_80: 14.00\n\
+      \      RME_180: 15.00\n      RMG_180: 18.00\n      RMG_380: \"\"\n      RMG_500:\
+      \ \"\"\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500: 20.00\n   \
+      \   RMK_700: \"\"\n\n  - name: \"Aluminium + Silicon\"\n    unit: \"mg/kg\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 25\n      RMB_30: \"\"\n   \
+      \   RMD_80: 40\n      RME_180: \"\"\n      RMG_180: 50\n      RMG_380: \"\"\n\
+      \      RMG_500: 60\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\" \n\n  - name: \"Sodium\"\n    unit: \"mg/kg\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 50\n      RMB_30: 100\n    \
+      \  RMD_80: \"\"\n      RME_180: 50\n      RMG_180: \"\"\n      RMG_380: \"\"\
+      \n      RMG_500: 100\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"    \n\n  - name: \"Ash\"\n    unit: \"% m/m\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 0.040\n      RMB_30: \"\"\n\
+      \      RMD_80: 0.070\n      RME_180: \"\"\n      RMG_180: \"\"\n      RMG_380:\
+      \ 0.100\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 0.150\n  \
+      \    RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Vanadium\"\n    unit:\
+      \ \"mg/kg\"\n    limit: \"Max\"\n    values:\n      RMA_10: 50\n      RMB_30:\
+      \ 150\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: 350\n      RMG_380:\
+      \ \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 450\n     \
+      \ RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"CCAI\"\n    unit: \"-\"\n\
+      \    limit: \"Max\"\n    values:\n      RMA_10: 850\n      RMB_30: \"\"\n  \
+      \    RMD_80: 860\n      RME_180: \"\"\n      RMG_180: 860\n      RMG_380: \"\
+      \"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 870\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Water\"\n    unit: \"% V/V\"\n  \
+      \  limit: \"Max\"\n    values:\n      RMA_10: 0.30\n      RMB_30: \"\"\n   \
+      \   RMD_80: \"\"\n      RME_180: 0.50\n      RMG_180: \"\"\n      RMG_380: \"\
+      \"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: \"\"\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Pour point (upper), Summer\"\n  \
+      \  unit: \"°C\"\n    limit: \"Max\"\n    values:\n      RMA_10: 6\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: 30\n      RMG_380:\
+      \ \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 30\n      RMK_500:\
+      \ \"\"\n      RMK_700: \"\"\n\n  - name: \"Pour point (upper), Winter\"\n  \
+      \  unit: \"°C\"\n    limit: \"Max\"\n    values:\n      RMA_10: 0\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: \"\"\n     \
+      \ RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: 30\n\
+      \      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Flash point\"\n   \
+      \ unit: \"°C\"\n    limit: \"Min\"\n    values:\n      RMA_10: 60.0\n      RMB_30:\
+      \ \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180: \"\"\n     \
+      \ RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n      RMK_380: \"\
+      \"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Sulphur\"\n    unit:\
+      \ \"% m/m\"\n    limit: \"Max\"\n    values:\n      RMA_10: \"Statutory requirements\"\
+      \n      RMB_30: \"\"\n      RMD_80: \"\"\n      RME_180: \"\"\n      RMG_180:\
+      \ \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700: \"\"\n    \
+      \  RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  - name: \"Total\
+      \ Sediment, aged\"\n    unit: \"% m/m\"\n    limit: \"Max\"\n    values:\n \
+      \     RMA_10: \"\"\n      RMB_30: 0.10\n      RMD_80: \"\"\n      RME_180: \"\
+      \"\n      RMG_180: \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\n  -\
+      \ name: \"Acid Number\"\n    unit: \"mgKOH/g\"\n    limit: \"Max\"\n    values:\n\
+      \      RMA_10: \"\"\n      RMB_30: \"\"\n      RMD_80: 2.5\n      RME_180: \"\
+      \"\n      RMG_180: \"\"\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
+      \ \"\"\n      RMK_380: \"\"\n      RMK_500: \"\"\n      RMK_700: \"\"\n\nused_lubricating_oils:\n\
+      \  description: \"The fuel shall be free from ULO, and shall be considered to\
+      \ contain ULO when either one of the following conditions is met: Calcium >\
+      \ 30 and zinc >15; or Calcium > 30 and phosphorus > 15.\"\n  calcium_and_zinc_or_phosphorus:\n\
+      \    unit: \"mg/kg\"\n    limit: \"-\"\n    values: \"\""
+    reason: Wrong Temperature
+    timestamp: '2026-02-05T16:41:49.962724'

@@ -1,22 +1,14 @@
 # Metadata
 # entity_id: E002
-# type: !!python/object/apply:pipeline_config.EntityType
-# - table
+# type: table
 # source_page: 1
 # position: 2
-# original_bbox:
-# - 16.997270584106445
-# - 482.37902069091797
-# - 802.882080078125
-# - 69.21551513671875
 # confidence: 0.85
-# processing_notes: Docling extraction failed (Empty markdown output), used Vision API
-# extraction_method: vision_api
-# has_surrounding_text: false
-# 
+# corrected: true
+# correction_timestamp: 2026-02-05T16:41:49.971103
 
 parameters:
-  - name: "Viscosity at 50°C"
+  - name: "Viscosity at 60°C"
     unit: "mm²/s"
     limit: "Max"
     values:

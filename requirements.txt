@@ -20,6 +20,9 @@ markdown2>=2.4.0
 # Web server for comparison viewer
 flask>=3.0.0
 
+# AI-assisted corrections
+openai>=1.12.0
+
 # Optional but recommended
 # For better performance
 numpy>=1.24.0

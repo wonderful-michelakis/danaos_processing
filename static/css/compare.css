@@ -341,3 +341,10 @@ input[type="checkbox"],
 input[type="number"] {
     transition-property: all;
 }
+
+/* Corrected entity indicator */
+.entity.has-correction .entity-badge::after {
+    content: " ✓";
+    color: #28a745;
+    font-weight: bold;
+}

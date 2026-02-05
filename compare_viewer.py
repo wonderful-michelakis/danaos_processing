@@ -10,11 +10,13 @@ Usage:
 
 import argparse
 from pathlib import Path
-from flask import Flask, render_template, send_file, jsonify
+from flask import Flask, render_template, send_file, jsonify, request
 import yaml
 import webbrowser
 import threading
 import time
+import asyncio
+from correction_manager import CorrectionManager
 
 
 class ComparisonViewer:
@@ -37,6 +39,9 @@ class ComparisonViewer:
 
         # Load manifest for page mapping
         self.manifest = self._load_manifest()
+
+        # Initialize CorrectionManager
+        self.correction_manager = CorrectionManager(self.output_dir)
 
     def _load_manifest(self):
         """Load manifest.yaml if it exists"""
@@ -83,6 +88,118 @@ class ComparisonViewer:
         def health():
             """Health check endpoint"""
             return jsonify({'status': 'ok'})
+
+        # Correction API routes
+
+        @app.route('/api/entity/<entity_id>')
+        def get_entity_content(entity_id):
+            """
+            GET: Return entity content for editing
+            Response: {entity_id, type, page, content, metadata}
+            """
+            try:
+                entity_data = self.correction_manager.get_entity_content(entity_id)
+                return jsonify(entity_data)
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 404
+            except FileNotFoundError as e:
+                return jsonify({'error': str(e)}), 404
+            except Exception as e:
+                return jsonify({'error': f'Internal error: {str(e)}'}), 500
+
+        @app.route('/api/correct-with-ai', methods=['POST'])
+        def correct_with_ai():
+            """
+            POST: AI-assisted correction
+            Request: {entity_id, user_prompt}
+            Response: {corrected_content}
+            """
+            try:
+                data = request.get_json()
+                entity_id = data.get('entity_id')
+                user_prompt = data.get('user_prompt')
+
+                if not entity_id or not user_prompt:
+                    return jsonify({'error': 'entity_id and user_prompt required'}), 400
+
+                # Run async correct_with_ai
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                corrected_content = loop.run_until_complete(
+                    self.correction_manager.correct_with_ai(entity_id, user_prompt)
+                )
+                loop.close()
+
+                return jsonify({'corrected_content': corrected_content})
+
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 400
+            except Exception as e:
+                return jsonify({'error': f'AI correction failed: {str(e)}'}), 500
+
+        @app.route('/api/save-correction', methods=['POST'])
+        def save_correction():
+            """
+            POST: Save correction and regenerate HTML
+            Request: {entity_id, corrected_content, correction_type, reason, user_prompt?}
+            Response: {success, message}
+            """
+            try:
+                data = request.get_json()
+                entity_id = data.get('entity_id')
+                corrected_content = data.get('corrected_content')
+                correction_type = data.get('correction_type')
+                reason = data.get('reason')
+                user_prompt = data.get('user_prompt')
+
+                # Validation
+                if not entity_id or not corrected_content or not correction_type or not reason:
+                    return jsonify({
+                        'error': 'entity_id, corrected_content, correction_type, and reason required'
+                    }), 400
+
+                if correction_type not in ['manual', 'ai']:
+                    return jsonify({'error': 'correction_type must be "manual" or "ai"'}), 400
+
+                # Apply correction
+                self.correction_manager.apply_correction(
+                    entity_id=entity_id,
+                    corrected_content=corrected_content,
+                    correction_type=correction_type,
+                    reason=reason,
+                    user_prompt=user_prompt
+                )
+
+                # Regenerate HTML
+                html_path = self.correction_manager.regenerate_html()
+
+                # Update html_path reference
+                self.html_path = html_path
+
+                return jsonify({
+                    'success': True,
+                    'message': f'Correction saved and HTML regenerated',
+                    'html_path': '/html/content'
+                })
+
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 400
+            except FileNotFoundError as e:
+                return jsonify({'error': str(e)}), 404
+            except Exception as e:
+                return jsonify({'error': f'Save failed: {str(e)}'}), 500
+
+        @app.route('/api/corrections')
+        def list_corrections():
+            """
+            GET: Return all corrections
+            Response: {corrections: {...}}
+            """
+            try:
+                corrections = self.correction_manager.load_corrections()
+                return jsonify(corrections)
+            except Exception as e:
+                return jsonify({'error': f'Failed to load corrections: {str(e)}'}), 500
 
         return app
 

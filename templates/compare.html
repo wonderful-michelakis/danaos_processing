@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ document_title }} - Comparison</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/correction_modal.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
@@ -60,10 +61,85 @@
         </div>
     </div>
 
+    <!-- Correction Modal -->
+    <div id="correction-modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Correct Entity <span id="modal-entity-id"></span></h2>
+                <button class="close-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Entity Info -->
+                <div class="entity-info">
+                    <span class="info-badge">Type: <strong id="modal-entity-type"></strong></span>
+                    <span class="info-badge">Page: <strong id="modal-entity-page"></strong></span>
+                </div>
+
+                <!-- Original Content (Read-only) -->
+                <div class="content-section">
+                    <label>Original Content:</label>
+                    <pre id="original-content" class="content-display"></pre>
+                </div>
+
+                <!-- Correction Method Tabs -->
+                <div class="correction-tabs">
+                    <button class="tab-btn active" data-tab="manual">Manual Edit</button>
+                    <button class="tab-btn" data-tab="ai">AI-Assisted</button>
+                </div>
+
+                <!-- Manual Edit Tab -->
+                <div id="manual-tab" class="tab-content active">
+                    <label>Corrected Content:</label>
+                    <textarea id="manual-edit" class="edit-textarea" rows="15"></textarea>
+                    <label>Reason for Correction:</label>
+                    <input type="text" id="manual-reason" placeholder="e.g., Fixed unit conversion error" />
+                </div>
+
+                <!-- AI-Assisted Tab -->
+                <div id="ai-tab" class="tab-content" style="display: none;">
+                    <label>Describe the Issue:</label>
+                    <textarea id="ai-prompt" class="prompt-textarea" rows="5"
+                              placeholder="e.g., The responsible party should be 'Chief Engineer' not 'Master'"></textarea>
+                    <button id="generate-correction-btn" class="btn btn-primary">
+                        Generate Correction
+                    </button>
+
+                    <!-- AI Result (hidden until generated) -->
+                    <div id="ai-result" style="display: none;">
+                        <label>AI-Generated Correction:</label>
+                        <pre id="ai-corrected-content" class="content-display"></pre>
+                        <label>Review and Adjust:</label>
+                        <textarea id="ai-edit" class="edit-textarea" rows="15"></textarea>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="preview-section" style="display: none;">
+                    <label>Preview:</label>
+                    <div id="preview-content" class="preview-display"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
+                <button id="save-correction-btn" class="btn btn-success">Save Correction</button>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div id="modal-loading" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Pass manifest data to JavaScript -->
     <script>
         window.MANIFEST = {{ manifest | tojson }};
     </script>
     <script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/correction_modal.js') }}"></script>
 </body>
 </html>
