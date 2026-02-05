@@ -1,6 +1,6 @@
 corrections:
   E002:
-    corrected_content: "parameters:\n  - name: \"Viscosity at 60°C\"\n    unit: \"\
+    corrected_content: "parameters:\n  - name: \"Viscosity at 50°C\"\n    unit: \"\
       mm²/s\"\n    limit: \"Max\"\n    values:\n      RMA_10: 10.00\n      RMB_30:\
       \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
       \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
@@ -72,7 +72,7 @@ corrections:
       \ 30.00\n      RMD_80: 80.00\n      RME_180: 180.0\n      RMG_180: 180.0\n \
       \     RMG_380: 380.0\n      RMG_500: 500.0\n      RMG_700: 700.0\n      RMK_380:\
       \ 380.0\n      RMK_500: 500.0\n      RMK_700: 700.0\n\n  - name: \"Density at\
-      \ 15°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
+      \ 16°C\"\n    unit: \"kg/m³\"\n    limit: \"Max\"\n    values:\n      RMA_10:\
       \ 920.0\n      RMB_30: 960.0\n      RMD_80: 975.0\n      RME_180: 991.0\n  \
       \    RMG_180: 991.0\n      RMG_380: \"\"\n      RMG_500: \"\"\n      RMG_700:\
       \ \"\"\n      RMK_380: \"\"\n      RMK_500: 991.0\n      RMK_700: 1010.0\n\n\
@@ -133,8 +133,8 @@ corrections:
       \ contain ULO when either one of the following conditions is met: Calcium >\
       \ 30 and zinc >15; or Calcium > 30 and phosphorus > 15.\"\n  calcium_and_zinc_or_phosphorus:\n\
       \    unit: \"mg/kg\"\n    limit: \"-\"\n    values: \"\""
-    reason: Density was incorrect
-    timestamp: '2026-02-05T16:55:29.902751'
+    reason: Wrong Viscosity Number
+    timestamp: '2026-02-05T17:03:54.740491'
   E004:
     corrected_content: "hydrogen_sulphide_notes:\n  max_mg_per_kg: 2.00\n  notes:\n\
       \    - code: a\n      description: \"This residual marine fuel grade is formerly\

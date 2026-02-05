@@ -5,10 +5,10 @@
 # position: 2
 # confidence: 0.85
 # corrected: true
-# correction_timestamp: 2026-02-05T16:55:29.919130
+# correction_timestamp: 2026-02-05T17:03:54.757774
 
 parameters:
-  - name: "Viscosity at 60°C"
+  - name: "Viscosity at 50°C"
     unit: "mm²/s"
     limit: "Max"
     values:

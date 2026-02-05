@@ -8,7 +8,7 @@
 
 ```yaml
 parameters:
-  - name: "Viscosity at 60°C"
+  - name: "Viscosity at 50°C"
     unit: "mm²/s"
     limit: "Max"
     values:

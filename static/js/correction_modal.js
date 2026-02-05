@@ -229,6 +229,9 @@ class CorrectionModal {
 
             const data = await response.json();
 
+            // Store entity ID before closing (close() resets it to null)
+            const savedEntityId = this.currentEntityId;
+
             // Hide loading
             this.hideLoading();
 
@@ -239,10 +242,10 @@ class CorrectionModal {
             await this.comparator.reloadHTMLContent();
 
             // Highlight corrected entity
-            this.comparator.highlightCorrectedEntity(this.currentEntityId);
+            this.comparator.highlightCorrectedEntity(savedEntityId);
 
             // Show success message
-            this.comparator.showError(`✓ Correction saved: ${this.currentEntityId}`);
+            this.comparator.showSuccess(`✓ Correction saved for ${savedEntityId}`);
 
         } catch (error) {
             console.error('Save correction error:', error);
