@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ document_title }} - Comparison</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <header class="toolbar">
+        <div class="toolbar-left">
+            <h1>📄 Document Comparison</h1>
+            <span class="filename">{{ pdf_filename }}</span>
+        </div>
+        <div class="toolbar-center">
+            <button id="prev-page" class="btn" title="Previous Page (Left Arrow)">← Prev</button>
+            <span class="page-info">
+                <span>Page </span>
+                <input type="number" id="page-num" value="1" min="1" title="Enter page number" />
+                <span> / </span>
+                <span id="page-count">--</span>
+            </span>
+            <button id="next-page" class="btn" title="Next Page (Right Arrow)">Next →</button>
+        </div>
+        <div class="toolbar-right">
+            <label class="sync-label" title="Toggle scroll synchronization">
+                <input type="checkbox" id="sync-scroll" checked />
+                <span>Sync Scroll</span>
+            </label>
+            <button id="zoom-out" class="btn" title="Zoom Out">−</button>
+            <span id="zoom-level" class="zoom-display">100%</span>
+            <button id="zoom-in" class="btn" title="Zoom In">+</button>
+        </div>
+    </header>
+
+    <div class="comparison-container">
+        <!-- PDF Panel -->
+        <div class="panel pdf-panel">
+            <div class="panel-header">
+                <h2>Original PDF</h2>
+            </div>
+            <div class="panel-content" id="pdf-content">
+                <div id="pdf-loading" class="loading">Loading PDF...</div>
+                <canvas id="pdf-canvas" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <!-- Resizable Divider -->
+        <div class="divider" title="Drag to resize panels"></div>
+
+        <!-- HTML Panel -->
+        <div class="panel html-panel">
+            <div class="panel-header">
+                <h2>Processed HTML</h2>
+            </div>
+            <div class="panel-content" id="html-content">
+                <div class="loading">Loading HTML content...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pass manifest data to JavaScript -->
+    <script>
+        window.MANIFEST = {{ manifest | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+</body>
+</html>
