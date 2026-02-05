@@ -11,6 +11,8 @@ original_bbox:
 - 272.58899999999994
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 ## Hi-Line Technique

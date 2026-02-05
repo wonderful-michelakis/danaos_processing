@@ -11,6 +11,8 @@ original_bbox:
 - 163.98900000000003
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 Whilst taking in the slack, remember that the ship and the helicopter will be moving relative to each other-take great care to keep the line outboard of all obstruction.

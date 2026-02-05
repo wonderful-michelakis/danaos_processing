@@ -22,6 +22,8 @@ class EntityMetadata(TypedDict):
     original_bbox: list[float] | None
     confidence: float | None
     processing_notes: str | None
+    extraction_method: str  # "docling", "vision_api", or "failed"
+    has_surrounding_text: bool  # Tracks if text extracted with diagram/table
 
 class PipelineConfig:
     """Configuration for document processing pipeline"""
@@ -45,23 +47,36 @@ class PipelineConfig:
     VISION_MAX_TOKENS = 4096
 
     # Image classification prompt
-    CLASSIFY_PROMPT = """Analyze this image and classify its PRIMARY content type:
+    CLASSIFY_PROMPT = """Analyze this image and classify its PRIMARY content type.
 
+IMPORTANT: Pay special attention to text that appears NEAR, ABOVE, BELOW, or SURROUNDING the main content
+(such as titles, captions, instructions, or explanatory text).
+
+Content Types:
 1. TEXT - Contains primarily readable text (paragraphs, lists, instructions)
 2. TABLE - Contains structured data in rows/columns
 3. DIAGRAM - Contains flowcharts, process diagrams, organizational charts
 4. FORM - Contains a form with fields to fill
-5. MIXED - Contains multiple types (specify which)
+5. MIXED - Contains multiple significant content types (e.g., diagram with surrounding explanatory text, table with extensive notes)
+
+Classification Rules:
+- If the image has a diagram/table AND significant text nearby (titles, captions, instructions), classify as MIXED
+- "Significant text" means 20+ words or important context (not just labels within the diagram)
 
 Respond with JSON:
 {
     "type": "TEXT|TABLE|DIAGRAM|FORM|MIXED",
     "confidence": 0.0-1.0,
     "description": "brief description",
-    "has_text": true/false,
+    "has_diagram": true/false,
     "has_table": true/false,
-    "has_diagram": true/false
-}"""
+    "has_text": true/false,
+    "text_location": "above|below|surrounding|within|none",
+    "text_significance": "high|medium|low|none",
+    "primary_content": "text|table|diagram"
+}
+
+If has_diagram=true AND text_significance in ["high", "medium"], you MUST classify as MIXED."""
 
     # Extraction prompts by type
     EXTRACT_TEXT_PROMPT = """Extract ALL text from this image.
@@ -94,15 +109,26 @@ contacts:
 
 Return ONLY the YAML, no markdown code blocks."""
 
-    EXTRACT_DIAGRAM_PROMPT = """Convert this diagram/flowchart to Mermaid syntax.
+    EXTRACT_DIAGRAM_PROMPT = """Extract the diagram/flowchart AND any surrounding text from this image.
 
-Requirements:
-- Use appropriate diagram type (graph, flowchart, sequence, etc.)
+IMPORTANT: Look for text OUTSIDE the diagram box:
+- Titles or headings above the diagram
+- Captions or descriptions below the diagram
+- Explanatory text or instructions near the diagram
+
+Return JSON with two fields:
+{
+    "surrounding_text": "All text appearing above, below, or near the diagram (empty string if none)",
+    "diagram": "Mermaid syntax for the flowchart/diagram"
+}
+
+Diagram Requirements:
+- Use appropriate Mermaid diagram type (graph, flowchart, sequence, etc.)
 - Preserve all nodes and relationships
 - Use clear, descriptive labels
 - Maintain logical flow
 
-Return ONLY the Mermaid code, no markdown code blocks."""
+If there is NO surrounding text, return empty string for surrounding_text (not null)."""
 
     # Document assembly
     ENTITY_MARKER_TEMPLATE = "<!-- Entity: {entity_id} | Type: {type} | Page: {page} -->"

@@ -11,6 +11,8 @@ original_bbox:
 - 188.10900000000004
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 This should be handled by a member of the ship's crew and taken in as the helicopter pays out the hoist cable. Coil down the line on deck clear of snags, but do not make it fast. The helicopter will pay out the full scope of wire and descend, probably to one side of the vessel, while the ship's crew continue to take in the slack until the winch hook and strop are on board.

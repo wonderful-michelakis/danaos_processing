@@ -11,6 +11,8 @@
 # - 66.3797607421875
 # confidence: 1.0
 # processing_notes: Table extracted from Docling
+# extraction_method: docling
+# has_surrounding_text: false
 # 
 
 table:

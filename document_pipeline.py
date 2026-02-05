@@ -11,6 +11,7 @@ from datetime import datetime
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
+from docling.datamodel.document import ConversionResult
 from docling_core.types.doc import ImageRefMode, PictureItem, TableItem, TextItem
 
 from pipeline_config import EntityType, PipelineConfig
@@ -87,7 +88,7 @@ class DocumentPipeline:
 
         # Step 2: Extract entities
         print("Step 2: Extracting and classifying entities...")
-        entities = self._extract_entities(doc, pdf_path, entities_dir)
+        entities = self._extract_entities(doc, result, pdf_path, entities_dir)
 
         # Step 3: Save individual entity files
         print(f"Step 3: Saving {len(entities)} individual entity files...")
@@ -116,9 +117,47 @@ class DocumentPipeline:
 
         return final_doc_path
 
+    def _extract_table_region_image(
+        self,
+        result: ConversionResult,
+        page_num: int,
+        bbox: list[float],
+        entity_id: str,
+        output_dir: Path
+    ) -> Path | None:
+        """Extract table region from page image using bounding box"""
+        try:
+            # Access page (convert 1-based to 0-based index)
+            page = result.pages[page_num - 1]
+
+            if not page.parsed_page or not page.parsed_page.image:
+                return None
+
+            # Get PIL image from ImageRef
+            pil_image = page.parsed_page.image.pil_image
+
+            # Crop using bbox coordinates [left, top, right, bottom]
+            crop_box = (
+                int(bbox[0]),
+                int(bbox[1]),
+                int(bbox[2]),
+                int(bbox[3])
+            )
+
+            cropped = pil_image.crop(crop_box)
+            temp_path = output_dir / f"temp_table_{entity_id}.png"
+            cropped.save(temp_path)
+
+            return temp_path
+
+        except Exception as e:
+            print(f"Warning: Failed to extract table region for {entity_id}: {e}")
+            return None
+
     def _extract_entities(
         self,
         doc,
+        result: ConversionResult,
         pdf_path: Path,
         entities_dir: Path
     ) -> List[ProcessedEntity]:
@@ -158,19 +197,31 @@ class DocumentPipeline:
                 entity_counter += 1
 
             elif isinstance(item, TableItem):
-                # Table - convert to YAML
-                # Get table as markdown first
+                # Step 1: Try Docling extraction
                 table_md = item.export_to_markdown()
 
+                # Step 2: Prepare fallback image if bbox available
+                table_region_path = None
+                if bbox:
+                    table_region_path = self._extract_table_region_image(
+                        result, page_num, bbox, entity_id, entities_dir
+                    )
+
+                # Step 3: Process with fallback option
                 entity = self.processor.process_table(
                     table_data=table_md,
                     entity_id=entity_id,
                     page_num=page_num,
                     position=entity_counter,
-                    bbox=bbox
+                    bbox=bbox,
+                    fallback_image_path=table_region_path
                 )
                 entities.append(entity)
                 entity_counter += 1
+
+                # Step 4: Cleanup temp image
+                if table_region_path and table_region_path.exists():
+                    table_region_path.unlink()
 
             elif isinstance(item, PictureItem):
                 # Image/Picture - need to extract and process

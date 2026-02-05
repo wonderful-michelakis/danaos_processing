@@ -1,7 +1,7 @@
 ---
 document_title: "All Chapters - Emergency Procedures Manual P86-90"
 total_entities: 51
-processed_date: "2026-02-05 11:34:36"
+processed_date: "2026-02-05 12:15:08"
 source_file: "All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf"
 ---
 
@@ -12,8 +12,7 @@ source_file: "All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf"
 <!-- Entity: E001 | Type: EntityType.IMAGE_TEXT | Page: 1 -->
 
 ```
-## danaos
-
+## Danaos
 ### Safety Management System
 ```
 
@@ -58,9 +57,10 @@ Effective Since: 01- 04- 2003
 
 <!-- Entity: E009 | Type: EntityType.IMAGE_TEXT | Page: 2 -->
 
+```markdown
 ## Danaos
-
 ### Safety Management System
+```
 
 
 <!-- Entity: E010 | Type: EntityType.TEXT | Page: 2 -->
@@ -166,7 +166,7 @@ A member of the helicopter crew may or may not be lowered with strop. The casual
 
 <!-- Entity: E028 | Type: EntityType.IMAGE_TEXT | Page: 3 -->
 
-```
+```markdown
 ## danaos
 
 ### Safety Management System
@@ -269,6 +269,7 @@ table: []
 
 ```markdown
 ## danaos
+
 ### Safety Management System
 ```
 

@@ -11,6 +11,8 @@ original_bbox:
 - 332.949
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 4- Should it be necessary to unhook the hoisting apparatus; keep the hook clear from the ship and signal-By thumb up-when the cleared hook can be hove in. Never fasten the hook on deck and the stretcher is never to be moved without being unhooked

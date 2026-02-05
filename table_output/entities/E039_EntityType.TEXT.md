@@ -11,6 +11,8 @@ original_bbox:
 - 763.088
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 Effective Since: 01- 04- 2003

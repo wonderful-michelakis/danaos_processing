@@ -10,11 +10,13 @@ original_bbox:
 - 177.9709014892578
 - 760.1659164428711
 confidence: 0.9
-processing_notes: 'Image classification: Logo with the text ''danaos Safety Management
-  System''.'
+processing_notes: 'Image classification: Logo with text ''danaos Safety Management
+  System'''
+extraction_method: vision_api
+has_surrounding_text: false
 ---
 
-```
+```markdown
 ## danaos
 
 ### Safety Management System

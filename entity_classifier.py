@@ -120,8 +120,8 @@ class EntityClassifier:
 
         return content
 
-    def extract_diagram(self, image_path: str | Path) -> str:
-        """Extract diagram from an image and convert to Mermaid"""
+    def extract_diagram(self, image_path: str | Path) -> dict:
+        """Extract diagram from an image and convert to Mermaid, plus surrounding text"""
         image_data = self._encode_image(image_path)
 
         response = self.client.chat.completions.create(
@@ -140,18 +140,74 @@ class EntityClassifier:
                     ]
                 }
             ],
-            max_tokens=self.config.VISION_MAX_TOKENS
+            max_tokens=self.config.VISION_MAX_TOKENS,
+            response_format={"type": "json_object"}
         )
 
         content = response.choices[0].message.content.strip()
 
-        # Clean up if wrapped in code blocks
-        if content.startswith("```mermaid"):
-            content = content.replace("```mermaid", "").replace("```", "").strip()
-        elif content.startswith("```"):
-            content = content.replace("```", "").strip()
+        # Parse JSON response
+        try:
+            result = json.loads(content)
+            return result  # Returns dict with 'surrounding_text' and 'diagram'
+        except json.JSONDecodeError:
+            # Fallback for non-JSON response (backwards compatibility)
+            if content.startswith("```mermaid"):
+                content = content.replace("```mermaid", "").replace("```", "").strip()
+            elif content.startswith("```"):
+                content = content.replace("```", "").strip()
+            return {"surrounding_text": "", "diagram": content}
 
-        return content
+    def extract_mixed_content(self, image_path: str | Path, primary_type: str) -> dict:
+        """
+        Extract both text and structured content (diagram/table) from mixed images
+
+        Args:
+            image_path: Path to image
+            primary_type: "diagram" or "table" - determines primary extraction
+
+        Returns:
+            dict with 'surrounding_text' and 'primary_content' keys
+        """
+        image_data = self._encode_image(image_path)
+
+        content_prompt = "mermaid syntax for diagram" if primary_type == "diagram" else "YAML structure for table"
+
+        prompt = f"""Extract ALL content from this image:
+
+1. SURROUNDING TEXT: Any text above, below, or near the main {primary_type}
+   (titles, headings, captions, instructions, explanatory text)
+
+2. MAIN CONTENT: The {primary_type} itself
+
+Return JSON:
+{{
+    "surrounding_text": "all text outside/around the {primary_type}, or empty string if none",
+    "primary_content": "{content_prompt}"
+}}"""
+
+        response = self.client.chat.completions.create(
+            model=self.config.VISION_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=self.config.VISION_MAX_TOKENS,
+            response_format={"type": "json_object"}
+        )
+
+        result = json.loads(response.choices[0].message.content)
+        return result
 
     def _encode_image(self, image_path: str | Path) -> str:
         """Encode image to base64 string"""

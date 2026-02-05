@@ -11,6 +11,8 @@ original_bbox:
 - 429.549
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 1Allow  the  hoisting  apparatus  to  contact  some  steel  part  of  the  ship  before  handling  it.  This  will release any static electricity

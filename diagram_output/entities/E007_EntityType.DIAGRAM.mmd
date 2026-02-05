@@ -1,0 +1,30 @@
+%% Metadata
+%% entity_id: E007
+%% type: !!python/object/apply:pipeline_config.EntityType
+%% - diagram
+%% source_page: 1
+%% position: 7
+%% original_bbox:
+%% - 35.82267379760742
+%% - 739.3143081665039
+%% - 559.7647705078125
+%% - 79.486083984375
+%% confidence: 1.0
+%% processing_notes: 'Image classification: Flowchart for procedures to report concerns
+%%   about another vessel''s safety, with explanatory text above.'
+%% extraction_method: vision_api
+%% has_surrounding_text: true
+%% 
+
+%% Surrounding Text:
+%% General Operating Guidance for Masters of Ships Observing Another Vessel Apparently in Danger
+%% The following diagram shows suggested procedures for reporting concerns about the safety of another vessel (Fire, Smoke, Adrift, Navigating towards a danger, etc).
+
+graph TD;
+    A[Try to communicate.] -->|Response received? YES| B[Inform the other ship about your concern and try to obtain further information.]
+    B -->|Are you satisfied? YES| C[After verifying that assistance is not required, proceed on passage.]
+    C -->| | C1[Keep records in logbook]
+    A -->|NO| D[Try to obtain the maximum of information about the other vessel (name, Call Sign, type, position, course, speed) and inform the nearest RCC]
+    D -->| | E[Try to keep track of the reported vessel (radar, visual and communication), unless otherwise directed by the nearest RCC. In case no further assistance is required, ask permission from RCC to continue your voyage. Make Logbook entries.]
+    B -->|NO| F[Sometimes the Master of a vessel in distress does not immediately contact the RCC]
+    F -->| | E

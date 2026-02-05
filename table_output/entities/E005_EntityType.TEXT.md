@@ -11,6 +11,8 @@ original_bbox:
 - 725.049
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 ## 10.13    Helicopter Rescue Checklist

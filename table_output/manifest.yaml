@@ -1,5 +1,5 @@
 source_document: All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf
-processed_date: '2026-02-05T11:34:36.639567'
+processed_date: '2026-02-05T12:15:08.395949'
 total_entities: 51
 entity_type_counts:
   ? !!python/object/apply:pipeline_config.EntityType
@@ -73,7 +73,7 @@ entities:
   - image_text
   page: 2
   position: 9
-  confidence: 0.9
+  confidence: 0.8
   file: entities/E009_EntityType.IMAGE_TEXT.md
 - id: E010
   type: !!python/object/apply:pipeline_config.EntityType

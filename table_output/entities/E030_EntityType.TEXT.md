@@ -11,6 +11,8 @@ original_bbox:
 - 697.149
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 The  following  information  is  required  for  Medical  Evacuation.  Master  or  crew  member  in  charge  should  have  this information ready for the radio man from the Coast Guard helicopter.

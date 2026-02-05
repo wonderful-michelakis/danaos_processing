@@ -11,6 +11,8 @@ original_bbox:
 - 405.429
 confidence: 1.0
 processing_notes: Direct text extraction from Docling
+extraction_method: docling
+has_surrounding_text: false
 ---
 
 2-  A  guide-line  may  be  attached  to  the  apparatus.    Keep  same  clear  from  obstacles.  The  handling  of  this  line (uncharged) is without danger;
