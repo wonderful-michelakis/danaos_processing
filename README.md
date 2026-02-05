@@ -1,26 +1,78 @@
 # Document Processing Pipeline
 
-Convert unstructured PDFs into standardized, LLM-friendly formats with no images in output.
+Complete pipeline for extracting, processing, and converting technical PDF documents into user-friendly HTML with entity-level corrections.
 
-**Text** → Markdown | **Tables** → YAML | **Diagrams** → Mermaid
+**Text** → Markdown | **Tables** → YAML | **Diagrams** → Mermaid → **User-Friendly HTML**
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Install
-pip install -r requirements.txt
-
-# 2. Configure
-echo "OPENAI_API_KEY=your-key" > .env
-
-# 3. Test
-python test_pipeline.py
-
-# 4. Process
+# 1. Process PDF document
 python run_pipeline.py document.pdf
+
+# 2. Generate user-friendly HTML
+python convert_to_friendly.py outputs/p86_90/final_document.md
+
+# 3. Launch comparison viewer (with corrections)
+python compare_viewer.py document.pdf outputs/p86_90/
 ```
+
+**Setup:**
+```bash
+pip install -r requirements.txt
+echo "OPENAI_API_KEY=your-key" > .env
+```
+
+---
+
+## Complete Workflow
+
+### Step 1: Process Document
+Extract entities (text, tables, diagrams, forms) from PDF using Docling and OpenAI vision.
+
+```bash
+python run_pipeline.py document.pdf [--pages 86-90]
+```
+
+**Output**: `outputs/p86_90/` directory with:
+- `entities/` - Individual entity files (E001.md, E002.yaml, E003.mmd)
+- `manifest.yaml` - Entity metadata and confidence scores
+- `final_document.md` - Assembled technical document
+
+### Step 2: Generate User-Friendly HTML
+Convert technical markdown to human-readable HTML with simplified language, visual tables, and professional styling.
+
+```bash
+python convert_to_friendly.py outputs/p86_90/final_document.md
+```
+
+**Output**: `outputs/p86_90/final_document_friendly.html`
+
+### Step 3: Compare and Correct
+Launch side-by-side PDF-HTML comparison viewer with entity-level corrections.
+
+```bash
+python compare_viewer.py document.pdf outputs/p86_90/ [--port 5000] [--no-browser]
+```
+
+**Features**:
+- Synchronized PDF-HTML navigation
+- Click entity badges to edit
+- Manual or AI-assisted corrections
+- Real-time HTML regeneration
+- Full audit trail in `corrections.yaml`
+
+### Step 4: Make Corrections (Optional)
+In the comparison viewer:
+1. Click any entity badge (E001, E002, etc.)
+2. Choose correction method:
+   - **Manual Edit**: Direct text/YAML editing
+   - **AI-Assisted**: Describe issue → GPT-4 generates fix
+3. Save → HTML auto-regenerates with changes
+
+**Corrections tracked in**: `outputs/p86_90/corrections.yaml`
 
 ---
 
@@ -51,6 +103,10 @@ output/
 ✅ **Intelligent Classification** - Vision AI determines content type
 ✅ **High-Quality Extraction** - Docling + OpenAI for best results
 ✅ **Standardized Output** - Only 3 formats (MD, YAML, Mermaid)
+✅ **User-Friendly HTML** - Simplified language with visual tables
+✅ **Side-by-Side Comparison** - PDF-HTML viewer with sync navigation
+✅ **Entity-Level Corrections** - Manual or AI-assisted editing
+✅ **Audit Trail** - Full correction history with metadata
 ✅ **Quality Tracking** - Confidence scores for every entity
 ✅ **LLM-Optimized** - Clean, parseable, ready for retrieval
 ✅ **Production-Ready** - Error handling, retry logic, validation
@@ -59,10 +115,11 @@ output/
 
 ## Documentation
 
-📚 **[ANSWERS.md](ANSWERS.md)** - Direct answers to architecture questions
-🚀 **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
-🏗️ **[PIPELINE_DESIGN.md](PIPELINE_DESIGN.md)** - Complete architecture details
-📖 **[PIPELINE_README.md](PIPELINE_README.md)** - Full reference guide
+📚 **[Complete Documentation](docs/)** - All documentation organized by category
+🚀 **[Quick Start](docs/guides/QUICK_START.md)** - Get started in 5 minutes
+🏗️ **[Architecture](docs/architecture/)** - System design and architecture
+📖 **[User Guides](docs/guides/)** - Complete reference guides
+💻 **[Development](docs/development/)** - Implementation notes and decisions
 
 ---
 
@@ -137,20 +194,34 @@ python test_pipeline.py
 ### Command Line
 
 ```bash
-# Basic usage
-python run_pipeline.py document.pdf
+# Process document
+python run_pipeline.py document.pdf [--pages 86-90]
 
-# Custom output directory
-python run_pipeline.py document.pdf my_output/
+# Generate friendly HTML
+python convert_to_friendly.py outputs/p86_90/final_document.md
+
+# Launch comparison viewer
+python compare_viewer.py document.pdf outputs/p86_90/ [--port 5000] [--no-browser]
 ```
 
 ### Programmatic
 
 ```python
+# Process document
 from document_pipeline import DocumentPipeline
-
 pipeline = DocumentPipeline()
 final_doc = pipeline.process_document("document.pdf")
+
+# Convert to friendly HTML
+from src.converter.document_converter import DocumentConverter
+converter = DocumentConverter("outputs/p86_90/final_document.md", "outputs/p86_90")
+html_path = converter.convert()
+
+# Manage corrections
+from src.corrections.correction_manager import CorrectionManager
+manager = CorrectionManager("outputs/p86_90")
+manager.apply_correction("E002", corrected_content, "manual", "Fixed unit")
+manager.regenerate_html()
 ```
 
 ### Load Results
@@ -213,8 +284,12 @@ processing_notes: "Image classification: Contact table"
 | Low quality extraction | Check image quality in source PDF |
 | Slow processing | Normal: ~2-5 sec per image |
 | Missing entities | Check console output for errors |
+| Comparison viewer won't load | Generate HTML first: `python convert_to_friendly.py outputs/p86_90/final_document.md` |
+| Corrections not showing | Check that `corrections.yaml` was created and HTML regenerated |
+| Port 5000 in use | Use `--port 8080` flag |
+| Entity badge not clickable | Refresh browser or check console for JS errors |
 
-See [QUICK_START.md](QUICK_START.md#troubleshooting) for details.
+See [Quick Start Guide](docs/guides/QUICK_START.md#troubleshooting) for details.
 
 ---
 
@@ -236,7 +311,37 @@ Using `gpt-4o` model (best quality/cost balance).
 - Handwritten text recognition limited
 - Processing is sequential (not parallel yet)
 
-See [PIPELINE_DESIGN.md](PIPELINE_DESIGN.md#pitfalls) for details and solutions.
+See [Pipeline Design](docs/architecture/PIPELINE_DESIGN.md#pitfalls) for details and solutions.
+
+---
+
+## Correction System
+
+The correction system allows entity-level edits with full audit trail:
+
+### How It Works
+1. **Entity-level corrections**: Each entity (E001, E002, etc.) can be individually corrected
+2. **Dual correction modes**: Manual editing or AI-assisted (GPT-4)
+3. **Automatic propagation**:
+   - Entity file updated → `final_document.md` rebuilt → HTML regenerated
+4. **Audit trail**: All corrections tracked in `corrections.yaml`
+
+### Correction Example
+```yaml
+# corrections.yaml
+corrections:
+  E002:
+    correction_type: manual
+    timestamp: "2026-02-05T14:30:00"
+    reason: "Fixed temperature unit"
+    original_content: "Viscosity at 50°C: Max 10.0 cSt"
+    corrected_content: "Viscosity at 60°C: Max 10.0 cSt"
+```
+
+### Revert Corrections
+- Edit `corrections.yaml` to remove correction
+- Restore entity file from backup
+- Regenerate: `python convert_to_friendly.py outputs/p86_90/final_document.md`
 
 ---
 
@@ -244,17 +349,47 @@ See [PIPELINE_DESIGN.md](PIPELINE_DESIGN.md#pitfalls) for details and solutions.
 
 ```
 document_processing/
-├── pipeline_config.py       # Configuration
-├── entity_classifier.py     # Vision API classification
-├── entity_processor.py      # Format conversion
-├── document_pipeline.py     # Main orchestrator
-├── run_pipeline.py          # CLI interface
-├── test_pipeline.py         # Installation test
-└── docs/
-    ├── ANSWERS.md           # Architecture Q&A
-    ├── QUICK_START.md       # Quick reference
-    ├── PIPELINE_DESIGN.md   # Detailed design
-    └── PIPELINE_README.md   # Full documentation
+├── src/                          # Source code
+│   ├── pipeline/                 # Document processing pipeline
+│   │   ├── document_pipeline.py  # Main orchestrator
+│   │   ├── entity_processor.py   # Format conversion
+│   │   ├── entity_classifier.py  # Vision API classification
+│   │   └── pipeline_config.py    # Configuration
+│   ├── converter/                # HTML conversion
+│   │   └── document_converter.py # Technical → friendly HTML
+│   └── corrections/              # Correction system
+│       ├── correction_manager.py # Correction backend
+│       └── compare_viewer.py     # Flask server
+├── web/                          # Web UI
+│   ├── templates/                # HTML templates
+│   │   └── compare.html
+│   └── static/                   # CSS/JS assets
+│       ├── css/
+│       │   ├── compare.css
+│       │   └── correction_modal.css
+│       └── js/
+│           ├── compare.js
+│           └── correction_modal.js
+├── outputs/                      # Processed documents
+│   ├── p86_90/                   # Example output
+│   │   ├── entities/             # Entity files
+│   │   ├── manifest.yaml         # Metadata
+│   │   ├── final_document.md     # Technical doc
+│   │   ├── final_document_friendly.html
+│   │   └── corrections.yaml      # Corrections
+│   └── p307_308/                 # Another example
+├── docs/                         # Documentation
+│   ├── guides/                   # User guides
+│   ├── architecture/             # System design
+│   ├── development/              # Dev notes
+│   └── README.md                 # Documentation index
+├── run_pipeline.py               # CLI: Process PDF
+├── convert_to_friendly.py        # CLI: Generate HTML
+├── compare_viewer.py             # CLI: Launch viewer
+├── test_pipeline.py              # Installation test
+├── requirements.txt
+├── README.md
+└── .env                          # API keys
 ```
 
 ---
@@ -266,18 +401,28 @@ document_processing/
    python test_pipeline.py
    ```
 
-2. **Process sample document:**
+2. **Process document:**
    ```bash
-   python run_pipeline.py "All chapters - EMERGENCY PROCEDURES MANUAL_p17-21.pdf"
+   python run_pipeline.py document.pdf
    ```
 
-3. **Review outputs:**
+3. **Generate friendly HTML:**
    ```bash
-   cat output/manifest.yaml
-   ls output/entities/
+   python convert_to_friendly.py outputs/p86_90/final_document.md
    ```
 
-4. **Integrate with your system**
+4. **Launch comparison viewer:**
+   ```bash
+   python compare_viewer.py document.pdf outputs/p86_90/
+   ```
+
+5. **Make corrections** (click entity badges in viewer)
+
+6. **Review outputs:**
+   ```bash
+   cat outputs/p86_90/manifest.yaml
+   cat outputs/p86_90/corrections.yaml  # If corrections made
+   ```
 
 ---
 

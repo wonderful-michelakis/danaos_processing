@@ -8,7 +8,7 @@ Usage:
 
 import argparse
 from pathlib import Path
-from document_converter import DocumentConverter
+from src.converter.document_converter import DocumentConverter
 
 
 def main():

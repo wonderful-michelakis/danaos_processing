@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-from document_pipeline import DocumentPipeline
+from src.pipeline.document_pipeline import DocumentPipeline
 
 
 def main():
