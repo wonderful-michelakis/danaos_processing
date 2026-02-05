@@ -78,6 +78,12 @@ class EntityProcessor:
             yaml_content, table_markdown
         )
 
+        # DEBUG: Log validation results
+        print(f"  [DEBUG {entity_id}] Validation: is_valid={is_valid}, reason='{validation_reason}'")
+        print(f"  [DEBUG {entity_id}] Fallback path available: {fallback_image_path is not None}")
+        if not is_valid:
+            print(f"  [DEBUG {entity_id}] YAML preview: {yaml_content[:200]}")
+
         # Track extraction metadata
         extraction_method = "docling"
         confidence = 1.0

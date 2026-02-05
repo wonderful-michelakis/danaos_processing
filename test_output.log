@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/panosmichelakis/Desktop/document_processing/run_pipeline.py", line 56, in main
+    final_doc_path = pipeline.process_document(pdf_path, output_dir)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/panosmichelakis/Desktop/document_processing/document_pipeline.py", line 76, in process_document
+    raise FileNotFoundError(f"PDF not found: {pdf_path}")
+FileNotFoundError: PDF not found: All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf
+============================================================
+Document Processing Pipeline
+============================================================
+Input:  All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf
+Output: -o/
+============================================================
+
+
+============================================================
+ERROR!
+============================================================
+FileNotFoundError: PDF not found: All chapters - EMERGENCY PROCEDURES MANUAL_p86-90.pdf

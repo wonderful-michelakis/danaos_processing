@@ -13,6 +13,8 @@ from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
 from docling.datamodel.document import ConversionResult
 from docling_core.types.doc import ImageRefMode, PictureItem, TableItem, TextItem
+import fitz  # PyMuPDF
+from PIL import Image
 
 from pipeline_config import EntityType, PipelineConfig
 from entity_classifier import EntityClassifier
@@ -119,39 +121,72 @@ class DocumentPipeline:
 
     def _extract_table_region_image(
         self,
-        result: ConversionResult,
+        pdf_path: Path,
         page_num: int,
         bbox: list[float],
         entity_id: str,
         output_dir: Path
     ) -> Path | None:
-        """Extract table region from page image using bounding box"""
+        """Extract table region from PDF page using PyMuPDF"""
         try:
-            # Access page (convert 1-based to 0-based index)
-            page = result.pages[page_num - 1]
+            # Open PDF with PyMuPDF
+            pdf_doc = fitz.open(str(pdf_path))
 
-            if not page.parsed_page or not page.parsed_page.image:
-                return None
+            # Get page (convert 1-based to 0-based index)
+            page = pdf_doc[page_num - 1]
 
-            # Get PIL image from ImageRef
-            pil_image = page.parsed_page.image.pil_image
+            # Transform PDF coordinates to PyMuPDF rect
+            # Docling bbox: [left, top, right, bottom] - top-left origin
+            # PyMuPDF rect: (x0, y0, x1, y1) - top-left origin
+            # Note: PyMuPDF uses the same coordinate system as Docling for rendering
 
-            # Crop using bbox coordinates [left, top, right, bottom]
-            crop_box = (
-                int(bbox[0]),
-                int(bbox[1]),
-                int(bbox[2]),
-                int(bbox[3])
-            )
+            # Docling's top > bottom in PDF coordinate space (bottom-left origin)
+            # But when rendering, we need to use page coordinate space (top-left origin)
+            page_height = page.rect.height
 
-            cropped = pil_image.crop(crop_box)
+            # Transform to page rendering coordinates
+            left = bbox[0]
+            top_pdf = bbox[1]  # This is in PDF coords (origin bottom-left)
+            right = bbox[2]
+            bottom_pdf = bbox[3]
+
+            # Convert to rendering coordinates (origin top-left)
+            top_render = page_height - top_pdf
+            bottom_render = page_height - bottom_pdf
+
+            # Ensure correct order
+            if top_render > bottom_render:
+                top_render, bottom_render = bottom_render, top_render
+
+            # Create rectangle for cropping
+            rect = fitz.Rect(left, top_render, right, bottom_render)
+
+            print(f"    [DEBUG] Page size: {page.rect.width}x{page.rect.height}")
+            print(f"    [DEBUG] Crop rect: {rect}")
+
+            # Render page to pixmap at high resolution
+            mat = fitz.Matrix(2, 2)  # 2x zoom for better quality
+            pix = page.get_pixmap(matrix=mat, clip=rect)
+
+            # Convert to PIL Image
+            img_data = pix.tobytes("png")
+            from io import BytesIO
+            pil_image = Image.open(BytesIO(img_data))
+
+            print(f"    [DEBUG] Extracted image: {pil_image.width}x{pil_image.height}")
+
+            # Save
             temp_path = output_dir / f"temp_table_{entity_id}.png"
-            cropped.save(temp_path)
+            pil_image.save(temp_path)
+            print(f"    [DEBUG] Saved to: {temp_path}")
 
+            pdf_doc.close()
             return temp_path
 
         except Exception as e:
-            print(f"Warning: Failed to extract table region for {entity_id}: {e}")
+            print(f"    [ERROR] Failed to extract table region for {entity_id}: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def _extract_entities(
@@ -203,9 +238,13 @@ class DocumentPipeline:
                 # Step 2: Prepare fallback image if bbox available
                 table_region_path = None
                 if bbox:
+                    print(f"  [DEBUG {entity_id}] Extracting table region with bbox: {bbox}")
                     table_region_path = self._extract_table_region_image(
-                        result, page_num, bbox, entity_id, entities_dir
+                        pdf_path, page_num, bbox, entity_id, entities_dir
                     )
+                    print(f"  [DEBUG {entity_id}] Table region path: {table_region_path}")
+                else:
+                    print(f"  [DEBUG {entity_id}] No bbox available for table region extraction")
 
                 # Step 3: Process with fallback option
                 entity = self.processor.process_table(

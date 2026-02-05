@@ -1,0 +1,58 @@
+# Metadata
+# entity_id: E031
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 3
+# position: 31
+# original_bbox:
+# - 34.8353157043457
+# - 691.7819213867188
+# - 554.9708251953125
+# - 66.3797607421875
+# confidence: 0.85
+# processing_notes: Docling extraction failed (Insufficient columns), used Vision API
+# extraction_method: vision_api
+# has_surrounding_text: false
+# 
+
+vessel_information:
+  name_type: ""
+  call_sign: ""
+  nationality_port_of_registry: ""
+  description_of_vessel: ""
+  frequencies_available: ""
+  position: ""
+  course: ""
+  speed: ""
+  person_calling: ""
+
+patients_vital_statistics:
+  name: ""
+  home_port: ""
+  sex: ""
+  age: ""
+  seamans_pager_no: ""
+  injury_occurrence: ""
+  bleeding: ""
+  bleeding_location: ""
+  bleeding_amount: ""
+  temperature: ""
+  pulse: ""
+  respiration_difficulty: ""
+  conscious: ""
+  pain_location: ""
+  type_of_pain: ""
+  patient_coherent: ""
+  can_walk: ""
+  treatment_meds_given: ""
+  treatment_time: ""
+  medical_chest: ""
+
+weather_and_sea_conditions:
+  wind_velocity_direction: ""
+  sea_direction_height: ""
+  visibility: ""
+
+evacuation_necessity:
+  master_certificates_papers: ""
+  radioman_instructions: ""

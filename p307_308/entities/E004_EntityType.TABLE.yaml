@@ -1,0 +1,30 @@
+# Metadata
+# entity_id: E004
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 2
+# position: 4
+# original_bbox:
+# - 16.924423217773438
+# - 508.52811431884766
+# - 803.2041625976562
+# - 374.7381134033203
+# confidence: 0.85
+# processing_notes: Docling extraction failed (Empty markdown output), used Vision API
+# extraction_method: vision_api
+# has_surrounding_text: false
+# 
+
+hydrogen_sulphide_notes:
+  max_mg_per_kg: 2.00
+  notes:
+    - code: a
+      description: "This residual marine fuel grade is formerly DMC distillate under ISO 8217:2005."
+    - code: b
+      description: "Purchasers shall ensure that this pour point is suitable for the equipment on board, especially in cold climates."
+    - code: c
+      description: "The purchaser shall define the maximum sulphur content according to the relevant statutory requirements."
+    - code: d
+      description: "Effective only from 1 July 2012."
+    - code: e
+      description: "Strong acids are not acceptable, even at levels not detectable by the standard test methods for SAN. As acid numbers below the values stated in the table do not guarantee that the fuels are free from problems associated with the presence of acidic compounds, it is the responsibility of the supplier and the purchaser to agree upon an acceptable acid number."

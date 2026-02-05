@@ -1,0 +1,58 @@
+# Metadata
+# entity_id: E006
+# type: !!python/object/apply:pipeline_config.EntityType
+# - table
+# source_page: 1
+# position: 6
+# original_bbox:
+# - 28.448734283447266
+# - 711.5384368896484
+# - 554.0045776367188
+# - 71.5535888671875
+# confidence: 0.85
+# processing_notes: Docling extraction failed (Empty table array), used Vision API
+# extraction_method: vision_api
+# has_surrounding_text: false
+# 
+
+actions:
+  - description: "Check Procedures for requesting Medical Assistance."
+    responsible: 
+      - Master
+  - description: "Pass on to the station concerned the following information, which should be updated in case of change. This is vital information which the rescue crew will use to plot the rendezvous: Vessels position, Course and speed, Weather conditions (speed and wind direction), Sea state (especially height of swell), Vessel type and characteristics (colour of funnel/topsides), Call sign and establish means of communication, Advise proposed area for pick-up. If vessel is beyond helicopter range, advise diversion intentions so that an appointment position may be arranged. Prepares passport, seaman’s book medical papers, vaccination certificate."
+    responsible: 
+      - Master
+  - description: "Supply full medical information: Can the patient be picked up by stretcher or not (always helicopter stretcher should be used), Advise any change in patients condition."
+    responsible: []
+  - description: "During Transfer: Switch off radars before the helicopter arrives. Follow Helicopter instructions as to course to steer (normally the course should be 300 to the port bow). If no communication with helicopter, maintain a steady course, into wind. A wind across the deck of 10-20 knots is ideal. Under no circumstances alter course  or speed while winching is taking place. If no radio contact is possible with the helicopter, then signal to the pilot by hand when you are ready for the hoisting."
+    responsible: 
+      - Master
+      - GMDSS Operator
+  - description: "Keeps Master advised of Patients condition."
+    responsible: 
+      - Master
+  - description: "Select, clear and mark the hoist area with a minimum 15 mtrs radius."
+    responsible: 
+      - Master
+  - description: "Establishes with Master signalling procedure to be used during operation."
+    responsible: 
+      - Master
+  - description: "Removes with crew assistance any obstructions from the designated pick-up area (remove antennas-stow derricks/booms-remove any loose equipment)."
+    responsible: 
+      - Master
+  - description: "In case poop is used flagstaff should be moved."
+    responsible: 
+      - Master
+  - description: "Prepare rescue team with lifejackets-and stand-by foam extinguishers and applicators if applicable."
+    responsible: 
+      - Master
+  - description: "Have ready smoke signal in case of daylight rescue to assist in helicopter approach (will indicate wind direction at deck level)."
+    responsible: 
+      - Master
+  - description: "In case of night approach illuminate the rescue area but avoid blinding helicopter crew. Any obstructions, which cannot be removed, shall be properly illuminated. Preferably all lights should be vertically for recognition and as soon as helicopter has identified position switch off this lighting."
+    responsible: 
+      - Master
+      - Ch. Engineer
+  - description: "Ensures that letter containing details about his medical treatment on board and medicines have been supplied including blood type."
+    responsible: 
+      - Master

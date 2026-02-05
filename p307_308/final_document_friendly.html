@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Chapters - Fleet Instructions Manual P307-308</title>
+    <style>
+        
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Header */
+        .document-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .document-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .document-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Main content */
+        .document-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Entity sections */
+        .entity {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .entity-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .data-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Parameter tables */
+        .parameters-table .param-name {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .parameters-table .param-unit {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .parameters-table .param-limit {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .diagram-caption {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+            text-align: left;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .diagram-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+
+        .diagram-fallback {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+
+        .diagram-fallback details {
+            margin-top: 15px;
+        }
+
+        .diagram-fallback summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .diagram-fallback pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        /* Text content */
+        .text-content {
+            line-height: 1.8;
+        }
+
+        .text-content h1,
+        .text-content h2,
+        .text-content h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .text-content h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .text-content h3 {
+            font-size: 1.35rem;
+            color: #495057;
+        }
+
+        .text-content p {
+            margin-bottom: 15px;
+        }
+
+        .text-content ul,
+        .text-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .text-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Error states */
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .empty-table {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .document-footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .document-header {
+                background: #667eea;
+                color: white;
+            }
+
+            .entity {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+
+            .entity-badge {
+                background: #495057;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .document-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .document-meta {
+                font-size: 0.85rem;
+            }
+
+            .entity {
+                padding: 20px;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 10px;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <header class="document-header">
+        <h1>All Chapters - Fleet Instructions Manual P307-308</h1>
+        <div class="document-meta">
+            <span class="meta-item">Source: All chapters - FLEET INSTRUCTIONS MANUAL_p307-308.pdf</span>
+            <span class="meta-item">Processed: 2026-02-05 13:17:50</span>
+            <span class="meta-item">Total Entities: 4</span>
+        </div>
+    </header>
+
+    <main class="document-content">
+        <section class="entity" data-entity="E001" data-page="1">
+  <div class="entity-badge">Page 1</div>
+<div class="text-content" id="E001">
+<h2>danaos</h2>
+
+<h3>Safety Management System</h3>
+
+</div>
+</section>
+
+<section class="entity" data-entity="E002" data-page="1">
+  <div class="entity-badge">Page 1</div>
+<div class="table-container" id="E002">
+  <table class="data-table parameters-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Unit</th>
+        <th>Limit</th>
+        <th>RMA 10</th>
+        <th>RMB 30</th>
+        <th>RMD 80</th>
+        <th>RME 180</th>
+        <th>RMG 180</th>
+        <th>RMG 380</th>
+        <th>RMG 500</th>
+        <th>RMG 700</th>
+        <th>RMK 380</th>
+        <th>RMK 500</th>
+        <th>RMK 700</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="param-name">Viscosity at 50°C</td>
+        <td class="param-unit">mm²/s</td>
+        <td class="param-limit">Max</td>
+        <td>10.0</td>
+        <td>30.0</td>
+        <td>80.0</td>
+        <td>180.0</td>
+        <td>180.0</td>
+        <td>380.0</td>
+        <td>500.0</td>
+        <td>700.0</td>
+        <td>380.0</td>
+        <td>500.0</td>
+        <td>700.0</td>
+      </tr>
+      <tr>
+        <td class="param-name">Density at 15°C</td>
+        <td class="param-unit">kg/m³</td>
+        <td class="param-limit">Max</td>
+        <td>920.0</td>
+        <td>960.0</td>
+        <td>975.0</td>
+        <td>991.0</td>
+        <td>991.0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>991.0</td>
+        <td>1010.0</td>
+      </tr>
+      <tr>
+        <td class="param-name">Micro Carbon Residue</td>
+        <td class="param-unit">% m/m</td>
+        <td class="param-limit">Max</td>
+        <td>2.5</td>
+        <td>10.0</td>
+        <td>14.0</td>
+        <td>15.0</td>
+        <td>18.0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>20.0</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Aluminium + Silicon</td>
+        <td class="param-unit">mg/kg</td>
+        <td class="param-limit">Max</td>
+        <td>25</td>
+        <td></td>
+        <td>40</td>
+        <td></td>
+        <td>50</td>
+        <td></td>
+        <td>60</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Sodium</td>
+        <td class="param-unit">mg/kg</td>
+        <td class="param-limit">Max</td>
+        <td>50</td>
+        <td>100</td>
+        <td></td>
+        <td>50</td>
+        <td></td>
+        <td></td>
+        <td>100</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Ash</td>
+        <td class="param-unit">% m/m</td>
+        <td class="param-limit">Max</td>
+        <td>0.04</td>
+        <td></td>
+        <td>0.07</td>
+        <td></td>
+        <td></td>
+        <td>0.1</td>
+        <td></td>
+        <td></td>
+        <td>0.15</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Vanadium</td>
+        <td class="param-unit">mg/kg</td>
+        <td class="param-limit">Max</td>
+        <td>50</td>
+        <td>150</td>
+        <td></td>
+        <td></td>
+        <td>350</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>450</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">CCAI</td>
+        <td class="param-unit">-</td>
+        <td class="param-limit">Max</td>
+        <td>850</td>
+        <td></td>
+        <td>860</td>
+        <td></td>
+        <td>860</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>870</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Water</td>
+        <td class="param-unit">% V/V</td>
+        <td class="param-limit">Max</td>
+        <td>0.3</td>
+        <td></td>
+        <td></td>
+        <td>0.5</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Pour point (upper), Summer</td>
+        <td class="param-unit">°C</td>
+        <td class="param-limit">Max</td>
+        <td>6</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>30</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>30</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Pour point (upper), Winter</td>
+        <td class="param-unit">°C</td>
+        <td class="param-limit">Max</td>
+        <td>0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>30</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Flash point</td>
+        <td class="param-unit">°C</td>
+        <td class="param-limit">Min</td>
+        <td>60.0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Sulphur</td>
+        <td class="param-unit">% m/m</td>
+        <td class="param-limit">Max</td>
+        <td>Statutory requirements</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Total Sediment, aged</td>
+        <td class="param-unit">% m/m</td>
+        <td class="param-limit">Max</td>
+        <td></td>
+        <td>0.1</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="param-name">Acid Number</td>
+        <td class="param-unit">mgKOH/g</td>
+        <td class="param-limit">Max</td>
+        <td></td>
+        <td></td>
+        <td>2.5</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section class="entity" data-entity="E003" data-page="2">
+  <div class="entity-badge">Page 2</div>
+<div class="text-content" id="E003">
+<pre><code>## danaos
+### Safety Management System
+</code></pre>
+
+</div>
+</section>
+
+<section class="entity" data-entity="E004" data-page="2">
+  <div class="entity-badge">Page 2</div>
+<div class="table-container" id="E004">
+  <table class="data-table">
+    <tbody>
+      <tr>
+        <th>hydrogen_sulphide_notes</th>
+        <td>{'max_mg_per_kg': 2.0, 'notes': [{'code': 'a', 'description': 'This residual marine fuel grade is formerly DMC distillate under ISO 8217:2005.'}, {'code': 'b', 'description': 'Purchasers shall ensure that this pour point is suitable for the equipment on board, especially in cold climates.'}, {'code': 'c', 'description': 'The purchaser shall define the maximum sulphur content according to the relevant statutory requirements.'}, {'code': 'd', 'description': 'Effective only from 1 July 2012.'}, {'code': 'e', 'description': 'Strong acids are not acceptable, even at levels not detectable by the standard test methods for SAN. As acid numbers below the values stated in the table do not guarantee that the fuels are free from problems associated with the presence of acidic compounds, it is the responsibility of the supplier and the purchaser to agree upon an acceptable acid number.'}]}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+
+    </main>
+
+    <footer class="document-footer">
+        <p>Generated from technical document • Powered by Document Processing Pipeline</p>
+    </footer>
+</body>
+</html>
