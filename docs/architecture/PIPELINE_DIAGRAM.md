@@ -1,6 +1,37 @@
-# Document Processing Pipeline - Mermaid Flow Diagram
+# Document Processing Pipeline - Mermaid Diagrams
 
-## Complete System Architecture
+## Complete End-to-End Pipeline
+
+```mermaid
+graph TB
+    Start([PDF Document]) --> Extract[Step 1: Extract<br/>run_pipeline.py]
+
+    Extract --> Entities[(entities/)]
+    Extract --> FinalDoc[(final_document.md)]
+    Extract --> Manifest[(manifest.yaml)]
+
+    FinalDoc --> Judge[Step 2: Judge<br/>run_judge.py]
+    Judge --> JudgeDoc[(final_document_judge.md)]
+
+    JudgeDoc --> Convert[Step 3: Convert<br/>convert_to_friendly.py]
+    FinalDoc -.->|alternative| Convert
+    Convert --> HTML[(friendly.html)]
+
+    Start --> Viewer[Step 4: Review<br/>compare_viewer.py]
+    HTML --> Viewer
+    Viewer --> Corrections[(corrections.yaml)]
+    Viewer -->|regenerate| Convert
+
+    classDef stepClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef fileClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef startClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px
+
+    class Extract,Judge,Convert,Viewer stepClass
+    class Entities,FinalDoc,Manifest,JudgeDoc,HTML,Corrections fileClass
+    class Start startClass
+```
+
+## Step 1: Extraction Detail
 
 ```mermaid
 graph TB
@@ -11,62 +42,48 @@ graph TB
     Docling --> Images[Embedded Images]
 
     %% Text processing path
-    TextBlock --> TextMD[Convert to Markdown]
-    TextMD --> TextEntity[Create Text Entity]
-    TextEntity --> SaveText[Save .md file]
+    TextBlock --> ListCheck{Consecutive<br/>list items?}
+    ListCheck -->|Yes| MergeList[Merge into<br/>single entity]
+    ListCheck -->|No| TextMD[Convert to Markdown]
+    MergeList --> TextMD
+    TextMD --> SaveText[Save .md file]
 
     %% Table processing path with validation
     Tables --> TableMD[Export to Markdown]
     TableMD --> TableYAML[Convert to YAML]
     TableYAML --> Validate{Validate Quality}
 
-    Validate -->|Valid: Has 2+ cols<br/>Has data rows<br/>Valid YAML| UseDocling[Use Docling Result]
-    Validate -->|Invalid: Empty/Bad| ExtractRegion[PyMuPDF: Extract<br/>Table Region Image]
-
-    UseDocling --> TableEntity1[Create Table Entity<br/>method: docling<br/>confidence: 1.0]
+    Validate -->|Valid| UseDocling[Use Docling Result<br/>confidence: 1.0]
+    Validate -->|Invalid| ExtractRegion[PyMuPDF: Extract<br/>Table Region]
     ExtractRegion --> VisionTable[Vision API:<br/>Extract Table]
-    VisionTable --> TableEntity2[Create Table Entity<br/>method: vision_api<br/>confidence: 0.85]
+    VisionTable --> UseVision[Vision Result<br/>confidence: 0.85]
 
-    TableEntity1 --> SaveYAML[Save .yaml file]
-    TableEntity2 --> SaveYAML
+    UseDocling --> SaveYAML[Save .yaml file]
+    UseVision --> SaveYAML
 
     %% Image processing path
     Images --> Classify[Vision API:<br/>Classify Image]
-    Classify --> ClassResult{Classification<br/>Result}
+    Classify --> ClassResult{Type?}
 
-    ClassResult -->|TEXT| ExtractText[Vision: Extract<br/>Text → Markdown]
-    ClassResult -->|TABLE| ExtractImgTable[Vision: Extract<br/>Table → YAML]
-    ClassResult -->|DIAGRAM| CheckText{Has Surrounding<br/>Text?}
-    ClassResult -->|MIXED| ExtractMixed[Vision: Extract<br/>Mixed Content]
+    ClassResult -->|TEXT| ExtractText[Extract Text]
+    ClassResult -->|TABLE| ExtractImgTable[Extract Table]
+    ClassResult -->|DIAGRAM| ExtractDiagram[Extract Diagram]
+    ClassResult -->|MIXED| ExtractMixed[Extract Mixed]
 
-    CheckText -->|Yes<br/>text_significance<br/>high/medium| ExtractMixed
-    CheckText -->|No| ExtractDiagram[Vision: Extract<br/>Diagram → Mermaid]
+    ExtractText --> SaveImgText[Save .md file]
+    ExtractImgTable --> SaveYAML
+    ExtractDiagram --> SaveMermaid[Save .mmd file]
+    ExtractMixed --> SaveMermaid
 
-    ExtractText --> ImageTextEntity[Create Image Text Entity]
-    ExtractImgTable --> ImageTableEntity[Create Table Entity]
-    ExtractDiagram --> DiagramEntity1[Create Diagram Entity<br/>has_surrounding_text: false]
-    ExtractMixed --> DiagramEntity2[Create Diagram Entity<br/>has_surrounding_text: true]
-
-    ImageTextEntity --> SaveImageText[Save .md file]
-    ImageTableEntity --> SaveYAML
-    DiagramEntity1 --> SaveMermaid[Save .mmd file]
-    DiagramEntity2 --> SaveMermaid
-
-    %% Final assembly
-    SaveText --> Assemble[Assemble All Entities]
+    %% Assembly
+    SaveText --> Assemble[Assemble Document]
     SaveYAML --> Assemble
-    SaveImageText --> Assemble
+    SaveImgText --> Assemble
     SaveMermaid --> Assemble
 
-    Assemble --> FinalDoc[Create Final Document<br/>with Entity Markers]
-    Assemble --> Manifest[Create Manifest<br/>with Metadata]
+    Assemble --> FinalDoc[final_document.md]
+    Assemble --> ManifestFile[manifest.yaml]
 
-    FinalDoc --> Output[Output Files]
-    Manifest --> Output
-
-    Output --> End([Complete!])
-
-    %% Styling
     classDef doclingClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
     classDef visionClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef validationClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
@@ -75,223 +92,145 @@ graph TB
 
     class Docling,TextBlock,Tables,Images doclingClass
     class Classify,ExtractText,ExtractImgTable,ExtractDiagram,ExtractMixed,VisionTable visionClass
-    class Validate,CheckText validationClass
-    class TextEntity,TableEntity1,TableEntity2,ImageTextEntity,ImageTableEntity,DiagramEntity1,DiagramEntity2 entityClass
-    class Output,End outputClass
+    class Validate,ListCheck validationClass
+    class SaveText,SaveYAML,SaveImgText,SaveMermaid entityClass
+    class FinalDoc,ManifestFile outputClass
 ```
 
-## Table Fallback System (Detailed)
+## Step 2: Judge Flow
 
 ```mermaid
 graph TB
-    TableDetected([Table Detected<br/>by Docling]) --> Export[Export to Markdown]
-    Export --> Convert[Convert MD → YAML]
-    Convert --> Val1{Check 1:<br/>Non-empty<br/>markdown?}
+    Input([final_document.md]) --> Replace[Replace HTML markers<br/>with ENTITY tokens]
+    Replace --> SendLLM[Send to LLM<br/>with judge_prompt.md]
 
-    Val1 -->|No| Fail1[Fail: Empty output]
-    Val1 -->|Yes| Val2{Check 2:<br/>Valid YAML<br/>structure?}
+    SendLLM --> Merge[Merge fragmented entities]
+    SendLLM --> Format[Apply format specs]
+    SendLLM --> Fix[Fix OCR artifacts]
 
-    Val2 -->|No| Fail2[Fail: Invalid YAML]
-    Val2 -->|Yes| Val3{Check 3:<br/>Has data<br/>rows?}
+    Merge --> Result[LLM Output]
+    Format --> Result
+    Fix --> Result
 
-    Val3 -->|No| Fail3[Fail: No rows]
-    Val3 -->|Yes| Val4{Check 4:<br/>2+ columns?}
+    Result --> RestoreMarkers[Convert tokens back<br/>to HTML markers]
+    RestoreMarkers --> ValidateMarkers{Markers<br/>preserved?}
 
-    Val4 -->|No| Fail4[Fail: Insufficient cols]
-    Val4 -->|Yes| Success[✓ Validation Passed]
+    ValidateMarkers -->|Yes| WriteJudge[Write final_document_judge.md]
+    ValidateMarkers -->|No| Fallback[Fall back to<br/>original document]
 
-    Success --> UseDocling[Use Docling Extraction<br/>confidence: 1.0<br/>method: docling]
-
-    Fail1 --> Fallback[Initiate Fallback]
-    Fail2 --> Fallback
-    Fail3 --> Fallback
-    Fail4 --> Fallback
-
-    Fallback --> PyMuPDF[PyMuPDF: Open PDF]
-    PyMuPDF --> GetPage[Get Page<br/>Convert 1-based → 0-based]
-    GetPage --> Transform[Transform Coordinates<br/>PDF coords → Render coords<br/>y' = page_height - y]
-    Transform --> Crop[Create Rect from BBox<br/>Render at 2x resolution]
-    Crop --> SaveTemp[Save Temp PNG]
-    SaveTemp --> VisionCall[Vision API Call:<br/>Extract Table]
-
-    VisionCall --> VisionSuccess{Vision API<br/>Success?}
-
-    VisionSuccess -->|Yes| UseVision[Use Vision Result<br/>confidence: 0.85<br/>method: vision_api]
-    VisionSuccess -->|No| BothFailed[Create Error YAML<br/>confidence: 0.0<br/>method: failed]
-
-    UseDocling --> Cleanup1[Save Entity]
-    UseVision --> Cleanup2[Delete Temp Image<br/>Save Entity]
-    BothFailed --> Cleanup3[Delete Temp Image<br/>Save Error Entity]
-
-    Cleanup1 --> Done([Entity Saved])
-    Cleanup2 --> Done
-    Cleanup3 --> Done
-
-    %% Styling
-    classDef validationClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef successClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef processClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef checkClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef outputClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef failClass fill:#ffebee,stroke:#b71c1c,stroke-width:2px
-    classDef fallbackClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
 
-    class Val1,Val2,Val3,Val4 validationClass
-    class Success,UseDocling,UseVision successClass
-    class Fail1,Fail2,Fail3,Fail4,BothFailed failClass
-    class Fallback,PyMuPDF,GetPage,Transform,Crop,SaveTemp,VisionCall fallbackClass
+    class Replace,SendLLM,Merge,Format,Fix,Result,RestoreMarkers processClass
+    class ValidateMarkers checkClass
+    class WriteJudge outputClass
+    class Fallback failClass
 ```
 
-## Mixed Content Extraction Flow
+## Step 3: HTML Conversion
 
 ```mermaid
 graph TB
-    ImageInput([Image from PDF]) --> Classify[Vision API: Classify]
+    Input([Markdown file]) --> Parse[Parse entity markers]
+    Parse --> Loop[For each entity]
 
-    Classify --> ClassJSON{Classification<br/>Response}
+    Loop --> TypeCheck{Entity type?}
 
-    ClassJSON --> CheckType{Check type +<br/>text_significance}
+    TypeCheck -->|Text/Heading| RenderMD[Render Markdown to HTML]
+    TypeCheck -->|YAML Table| ParseYAML[Parse YAML]
+    TypeCheck -->|Mermaid| Sanitize[Sanitize Mermaid code]
 
-    CheckType -->|type: MIXED| Mixed[Use Mixed Content<br/>Extraction]
-    CheckType -->|type: DIAGRAM<br/>+ text_sig: high/med| Mixed
-    CheckType -->|type: TABLE<br/>+ text_sig: high/med| Mixed
-    CheckType -->|type: DIAGRAM<br/>+ text_sig: low/none| StandardDiagram[Standard Diagram<br/>Extraction]
-    CheckType -->|type: TABLE<br/>+ text_sig: low/none| StandardTable[Standard Table<br/>Extraction]
-    CheckType -->|type: TEXT| StandardText[Standard Text<br/>Extraction]
+    ParseYAML --> RenderTable[Render HTML table]
+    Sanitize --> WrapMermaid[Wrap in mermaid pre tag]
 
-    Mixed --> MixedPrompt[Vision API with<br/>Enhanced Prompt:<br/>Extract surrounding text<br/>+ primary content]
+    RenderMD --> AddBadge[Add entity badge]
+    RenderTable --> AddBadge
+    WrapMermaid --> AddBadge
 
-    MixedPrompt --> MixedResult{Response<br/>Format}
+    AddBadge --> Assemble[Assemble HTML page]
+    Assemble --> AddCSS[Add CSS + mermaid.js]
+    AddCSS --> WriteHTML[Write friendly.html]
 
-    MixedResult --> ParseJSON[Parse JSON Response]
-    ParseJSON --> ExtractSurround[Extract:<br/>surrounding_text field]
-    ParseJSON --> ExtractPrimary[Extract:<br/>primary_content field]
+    classDef processClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef checkClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef outputClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
 
-    ExtractSurround --> Combine[Combine Both Parts]
-    ExtractPrimary --> Combine
-
-    Combine --> CreateEntity[Create Entity with:<br/>has_surrounding_text: true<br/>Content: text + primary]
-
-    StandardDiagram --> StandardResult1[Create Entity:<br/>has_surrounding_text: false]
-    StandardTable --> StandardResult2[Create Entity:<br/>has_surrounding_text: false]
-    StandardText --> StandardResult3[Create Entity:<br/>type: image_text]
-
-    CreateEntity --> SaveFile[Save Entity File]
-    StandardResult1 --> SaveFile
-    StandardResult2 --> SaveFile
-    StandardResult3 --> SaveFile
-
-    SaveFile --> End([Entity Complete])
-
-    %% Styling
-    classDef classifyClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    classDef mixedClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef standardClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef entityClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-
-    class Classify,ClassJSON,CheckType classifyClass
-    class Mixed,MixedPrompt,MixedResult,ParseJSON,ExtractSurround,ExtractPrimary,Combine mixedClass
-    class StandardDiagram,StandardTable,StandardText,StandardResult1,StandardResult2,StandardResult3 standardClass
-    class CreateEntity,SaveFile entityClass
+    class Parse,Loop,RenderMD,ParseYAML,Sanitize,RenderTable,WrapMermaid,AddBadge,Assemble,AddCSS processClass
+    class TypeCheck checkClass
+    class WriteHTML outputClass
 ```
 
-## Entity Metadata Structure
+## Step 4: Correction Flow
 
 ```mermaid
-graph LR
-    Entity[Entity] --> Meta[Metadata]
-    Entity --> Content[Content]
-    Entity --> FileExt[File Extension]
+graph TB
+    UserClick([User clicks<br/>entity badge]) --> FetchEntity[GET /api/entity/id]
+    FetchEntity --> ShowModal[Show correction modal]
 
-    Meta --> ID[entity_id: E001]
-    Meta --> Type[type: table/diagram/text]
-    Meta --> Page[source_page: 1]
-    Meta --> Pos[position: 6]
-    Meta --> BBox[original_bbox: coordinates]
-    Meta --> Conf[confidence: 0.0-1.0]
-    Meta --> Notes[processing_notes: details]
-    Meta --> Method[extraction_method:<br/>docling/vision_api/failed]
-    Meta --> HasText[has_surrounding_text:<br/>true/false]
+    ShowModal --> ChooseMethod{Method?}
 
-    Content --> ContentType{Content Type}
-    ContentType --> TableYAML[YAML for tables]
-    ContentType --> Mermaid[Mermaid for diagrams]
-    ContentType --> Markdown[Markdown for text]
+    ChooseMethod -->|Manual| EditTextarea[Edit in textarea]
+    ChooseMethod -->|AI-Assisted| DescribeIssue[Describe the issue]
 
-    FileExt --> ExtType{Extension Type}
-    ExtType --> YAMLExt[.yaml with # comments]
-    ExtType --> MermaidExt[.mmd with %% comments]
-    ExtType --> MDExt[.md with --- frontmatter]
+    DescribeIssue --> AICall[POST /api/correct-with-ai]
+    AICall --> ReviewAI[Review AI suggestion]
 
-    %% Styling
-    classDef metaClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    classDef contentClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef newFieldClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px
+    EditTextarea --> Save[POST /api/save-correction]
+    ReviewAI --> Save
 
-    class Meta,ID,Type,Page,Pos,BBox,Conf,Notes metaClass
-    class Method,HasText newFieldClass
-    class Content,ContentType,TableYAML,Mermaid,Markdown contentClass
+    Save --> SaveYAML[Save to corrections.yaml]
+    Save --> UpdateSource{Judge mode?}
+
+    UpdateSource -->|Yes| EditJudgeMD[Edit entity in<br/>final_document_judge.md]
+    UpdateSource -->|No| EditEntityFile[Edit entity file<br/>in entities/]
+    EditEntityFile --> RebuildMD[Rebuild final_document.md]
+
+    EditJudgeMD --> RegenHTML[Regenerate HTML]
+    RebuildMD --> RegenHTML
+
+    RegenHTML --> ReloadViewer[Reload HTML panel]
+    ReloadViewer --> Highlight[Highlight corrected entity]
+
+    classDef userClass fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef processClass fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef apiClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef checkClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+    class UserClick,ShowModal,ChooseMethod userClass
+    class EditTextarea,DescribeIssue,ReviewAI,SaveYAML,EditJudgeMD,EditEntityFile,RebuildMD,RegenHTML,ReloadViewer,Highlight processClass
+    class FetchEntity,AICall,Save apiClass
+    class UpdateSource checkClass
 ```
 
 ## Output File Structure
 
 ```mermaid
 graph TB
-    Root[output/] --> Entities[entities/]
-    Root --> Final[final_document.md]
-    Root --> Manifest[manifest.yaml]
+    Root["outputs/name/"] --> Entities["entities/"]
+    Root --> FinalDoc["final_document.md"]
+    Root --> JudgeDoc["final_document_judge.md"]
+    Root --> FriendlyHTML["final_document_friendly.html"]
+    Root --> JudgeHTML["final_document_judge_friendly.html"]
+    Root --> Manifest["manifest.yaml"]
+    Root --> Corrections["corrections.yaml"]
 
-    Entities --> Text[E001_EntityType.TEXT.md]
-    Entities --> Table1[E002_EntityType.TABLE.yaml<br/>method: docling]
-    Entities --> Table2[E003_EntityType.TABLE.yaml<br/>method: vision_api]
-    Entities --> Diagram[E004_EntityType.DIAGRAM.mmd<br/>has_surrounding_text: true]
-    Entities --> ImgText[E005_EntityType.IMAGE_TEXT.md]
+    Entities --> Text["E001_EntityType.TEXT.md"]
+    Entities --> Table["E002_EntityType.TABLE.yaml"]
+    Entities --> Diagram["E003_EntityType.DIAGRAM.mmd"]
+    Entities --> ImgText["E004_EntityType.IMAGE_TEXT.md"]
 
-    Text --> TextContent[---<br/>entity_id: E001<br/>type: text<br/>confidence: 1.0<br/>---<br/>## Heading<br/>content...]
+    FinalDoc -->|Step 1| Note1["All entities assembled<br/>with HTML markers"]
+    JudgeDoc -->|Step 2| Note2["Merged and normalized<br/>entities"]
+    JudgeHTML -->|Step 3| Note3["Styled HTML with<br/>clickable badges"]
+    Corrections -->|Step 4| Note4["Audit trail of<br/>all corrections"]
 
-    Table1 --> Table1Content[# Metadata<br/># extraction_method: docling<br/># confidence: 1.0<br/>table:<br/>  - col1: val1]
-
-    Table2 --> Table2Content[# Metadata<br/># extraction_method: vision_api<br/># confidence: 0.85<br/>table:<br/>  - col1: val1]
-
-    Diagram --> DiagramContent[%% Metadata<br/>%% has_surrounding_text: true<br/>%%<br/>%% Surrounding Text:<br/>%% Instructions here...<br/>graph TD<br/>  A --> B]
-
-    Final --> FinalContent[---<br/>document_title: doc<br/>total_entities: 5<br/>---<br/><br/>Entity markers<br/>+ content...]
-
-    Manifest --> ManifestContent[source_document: file.pdf<br/>total_entities: 5<br/>entity_type_counts:<br/>  text: 2<br/>  table: 2<br/>entities list...]
-
-    %% Styling
     classDef dirClass fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
     classDef fileClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef contentClass fill:#f1f8e9,stroke:#558b2f,stroke-width:1px
+    classDef noteClass fill:#f1f8e9,stroke:#558b2f,stroke-width:1px
 
     class Root,Entities dirClass
-    class Text,Table1,Table2,Diagram,ImgText,Final,Manifest fileClass
-    class TextContent,Table1Content,Table2Content,DiagramContent,FinalContent,ManifestContent contentClass
+    class Text,Table,Diagram,ImgText,FinalDoc,JudgeDoc,FriendlyHTML,JudgeHTML,Manifest,Corrections fileClass
+    class Note1,Note2,Note3,Note4 noteClass
 ```
-
----
-
-## Key Features Highlighted
-
-### ✓ Smart Table Fallback
-- Validates Docling extraction quality
-- Automatically falls back to Vision API for failed tables
-- Tracks extraction method and confidence in metadata
-
-### ✓ Mixed Content Detection
-- Detects text surrounding diagrams/tables
-- Extracts both components separately
-- Preserves context with structured content
-
-### ✓ Quality Tracking
-- Every entity has `extraction_method` field
-- Confidence scores reflect extraction quality
-- Processing notes explain failures
-
-### ✓ Cost Optimization
-- Free Docling extraction used whenever possible
-- Vision API only called when needed
-- Failed validations trigger fallback, not blind API calls
-
-### ✓ Comprehensive Metadata
-- Full provenance tracking (page, bbox, position)
-- Extraction method transparency
-- Surrounding text indicators
-- Quality confidence scores

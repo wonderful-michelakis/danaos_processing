@@ -1,77 +1,171 @@
 # Quick Start Guide
 
+## Prerequisites
+
+- Python 3.11+
+- OpenAI API key
+
 ## Installation
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# 1. Clone the repository
+git clone <repo-url>
+cd document_processing
 
-# Create .env file with your OpenAI API key
-echo "OPENAI_API_KEY=sk-your-key-here" > .env
+# 2. Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 3. Install dependencies (uv automatically creates and manages the virtual environment)
+uv sync
+
+# 4. Configure environment
+cp .env.example .env
+# Edit .env and add your OpenAI API key:
+#   OPENAI_API_KEY=sk-your-key-here
 ```
 
-## Basic Usage
+## Pipeline Overview
 
-### Process a Single Document
+The pipeline has 4 steps:
+
+```
+PDF → Extract → Judge → HTML → Review & Correct
+```
+
+1. **Extract** — Parse PDF into entities (text, tables, diagrams)
+2. **Judge** — LLM merges fragmented entities, fixes OCR artifacts
+3. **Convert** — Generate user-friendly HTML
+4. **Review** — Side-by-side comparison with click-to-edit corrections
+
+---
+
+## Step 1: Process a PDF
 
 ```bash
-python run_pipeline.py document.pdf
+uv run python run_pipeline.py document.pdf
 ```
 
-Output will be in `output/` directory:
-- `entities/` - Individual entity files
-- `final_document.md` - Complete assembled document
-- `manifest.yaml` - Processing metadata
+Options:
+```bash
+uv run python run_pipeline.py document.pdf --pages 1-10       # specific page range
+uv run python run_pipeline.py document.pdf --output mydir/     # custom output dir
+```
 
-### Process with Custom Output Directory
+Output (in `outputs/<name>/`):
+```
+outputs/<name>/
+├── entities/                # Individual entity files
+│   ├── E001_EntityType.TEXT.md
+│   ├── E002_EntityType.TABLE.yaml
+│   └── E003_EntityType.DIAGRAM.mmd
+├── final_document.md        # All entities assembled with markers
+└── manifest.yaml            # Entity metadata and confidence scores
+```
+
+## Step 2: Run the Judge (recommended)
+
+The judge is an LLM post-processing step that merges fragmented entities, combines repeating page headers, and fixes OCR artifacts.
 
 ```bash
-python run_pipeline.py document.pdf my_output/
+uv run python run_judge.py outputs/<name>/
 ```
 
-### Programmatic Usage
-
-```python
-from document_pipeline import DocumentPipeline
-
-# Initialize
-pipeline = DocumentPipeline()
-
-# Process
-final_doc = pipeline.process_document("document.pdf", "output")
-
-print(f"Done! Final document: {final_doc}")
+Options:
+```bash
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini  # cheaper model
 ```
+
+Output: `outputs/<name>/final_document_judge.md`
+
+## Step 3: Generate HTML
+
+```bash
+# From judge output (recommended):
+uv run python convert_to_friendly.py outputs/<name>/final_document_judge.md
+
+# From regular pipeline output:
+uv run python convert_to_friendly.py outputs/<name>/final_document.md
+```
+
+Output: `final_document_judge_friendly.html` or `final_document_friendly.html`
+
+## Step 4: Review and Correct
+
+Launch the side-by-side comparison viewer:
+
+```bash
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html
+```
+
+Options:
+```bash
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html --port 8080
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html --no-browser
+```
+
+In the viewer:
+1. **Navigate** — PDF and HTML panels sync by page
+2. **Review** — Compare original vs processed content
+3. **Correct** — Click any entity badge (E001, E002, etc.) to open the correction modal
+4. **Edit** — Choose manual editing or AI-assisted correction
+5. **Save** — Changes auto-regenerate the HTML
+
+All corrections are tracked in `outputs/<name>/corrections.yaml`.
+
+---
+
+## Full Example (end-to-end)
+
+```bash
+# Process the PDF
+uv run python run_pipeline.py manuals/procedures_manual.pdf
+
+# Run the judge to normalize entities
+uv run python run_judge.py outputs/procedures_manual/
+
+# Generate HTML from the judge output
+uv run python convert_to_friendly.py outputs/procedures_manual/final_document_judge.md
+
+# Review side-by-side and make corrections
+uv run python compare_viewer.py manuals/procedures_manual.pdf outputs/procedures_manual/final_document_judge_friendly.html
+```
+
+---
 
 ## Understanding the Output
 
-### 1. Entity Files (`output/entities/`)
+### Entity Files (`outputs/<name>/entities/`)
 
 Each entity is saved as a separate file:
 
-- `E001_text.md` - Text content in Markdown
-- `E002_table.yaml` - Table data in YAML
-- `E003_diagram.mmd` - Diagram in Mermaid syntax
+- `E001_EntityType.TEXT.md` — Text content in Markdown
+- `E002_EntityType.TABLE.yaml` — Table data in YAML
+- `E003_EntityType.DIAGRAM.mmd` — Diagram in Mermaid syntax
+- `E004_EntityType.IMAGE_TEXT.md` — Text extracted from images via Vision API
 
-**Entity naming:** `E{number}_{type}.{ext}`
-
-### 2. Final Document (`output/final_document.md`)
+### Final Document (`outputs/<name>/final_document.md`)
 
 Complete document with all entities in original order, with markers:
 
 ```markdown
-<!-- Entity: E001 | Type: text | Page: 1 -->
+<!-- Entity: E001 | Type: EntityType.TEXT | Page: 1 -->
 ## Section Title
 ...
 
-<!-- Entity: E002 | Type: table | Page: 2 -->
+<!-- Entity: E002 | Type: EntityType.TABLE | Page: 2 -->
 ```yaml
 table_data:
   - row1...
 ```
-```
 
-### 3. Manifest (`output/manifest.yaml`)
+### Judge Document (`outputs/<name>/final_document_judge.md`)
+
+Normalized version where the LLM judge has:
+- Merged fragmented entities (split lists, headers, paragraphs)
+- Combined repeating page headers into single entities
+- Fixed OCR artifacts and formatting issues
+
+### Manifest (`outputs/<name>/manifest.yaml`)
 
 Processing metadata:
 
@@ -88,8 +182,26 @@ entities:
     type: text
     page: 1
     confidence: 1.0
-    file: "entities/E001_text.md"
+    file: "entities/E001_EntityType.TEXT.md"
 ```
+
+### Corrections (`outputs/<name>/corrections.yaml`)
+
+Audit trail of all corrections made in the comparison viewer:
+
+```yaml
+corrections:
+  E015:
+    correction_type: manual
+    timestamp: "2026-02-05T14:30:00"
+    reason: "Fixed unit conversion error"
+    original_content: |
+      Viscosity at 50C: Max 10.0 mm2/s
+    corrected_content: |
+      Viscosity at 50C: Max 10.0 cSt
+```
+
+---
 
 ## Common Use Cases
 
@@ -98,31 +210,15 @@ entities:
 ```python
 import yaml
 
-# Read manifest
-with open('output/manifest.yaml') as f:
+with open('outputs/<name>/manifest.yaml') as f:
     manifest = yaml.safe_load(f)
 
-# Find table entities
-tables = [e for e in manifest['entities'] if e['type'] == 'table']
+tables = [e for e in manifest['entities'] if 'TABLE' in str(e['type'])]
 
-# Read each table
 for table in tables:
-    with open(f"output/{table['file']}") as f:
+    with open(f"outputs/<name>/{table['file']}") as f:
         table_data = yaml.safe_load(f)
         print(f"Table {table['id']}: {table_data}")
-```
-
-### Extract Only Diagrams
-
-```python
-from pathlib import Path
-
-# Find all Mermaid files
-diagrams = Path("output/entities").glob("*.mmd")
-
-for diagram in diagrams:
-    print(f"\n{diagram.name}:")
-    print(diagram.read_text())
 ```
 
 ### Get Low-Confidence Entities for Review
@@ -130,10 +226,9 @@ for diagram in diagrams:
 ```python
 import yaml
 
-with open('output/manifest.yaml') as f:
+with open('outputs/<name>/manifest.yaml') as f:
     manifest = yaml.safe_load(f)
 
-# Find entities with confidence < 0.8
 review_needed = [
     e for e in manifest['entities']
     if e.get('confidence', 1.0) < 0.8
@@ -144,160 +239,48 @@ for entity in review_needed:
     print(f"  - {entity['id']} ({entity['type']}): {entity['confidence']:.2f}")
 ```
 
-### Load Full Document for LLM
-
-```python
-# Read final assembled document
-with open('output/final_document.md') as f:
-    full_document = f.read()
-
-# Send to LLM
-response = llm.complete(
-    f"Based on this document:\n\n{full_document}\n\nAnswer: ..."
-)
-```
-
-### Search Across Entities
-
-```python
-from pathlib import Path
-
-def search_entities(keyword):
-    results = []
-    entity_files = Path("output/entities").glob("*")
-
-    for file in entity_files:
-        content = file.read_text()
-        if keyword.lower() in content.lower():
-            results.append(file.name)
-
-    return results
-
-# Find all entities mentioning "emergency"
-matches = search_entities("emergency")
-print(f"Found '{keyword}' in: {matches}")
-```
+---
 
 ## Configuration
 
-Edit `pipeline_config.py` to customize:
+Edit `src/pipeline/pipeline_config.py` to customize:
 
 ```python
-# Change Vision model
-VISION_MODEL = "gpt-4o"  # or "gpt-4o-mini" for lower cost
-
-# Adjust max tokens for extraction
-VISION_MAX_TOKENS = 4096
-
-# Modify output directories
-OUTPUT_DIR = "output"
-ENTITIES_DIR = "output/entities"
+VISION_MODEL = "gpt-4o"        # or "gpt-4o-mini" for lower cost
+VISION_MAX_TOKENS = 4096        # max tokens for extraction
 ```
+
+Judge model:
+```bash
+uv run python run_judge.py outputs/<name>/ --model gpt-4o       # default, best quality
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini   # faster, cheaper
+```
+
+---
 
 ## Troubleshooting
 
-### "OpenAI API key required"
+| Issue | Solution |
+|-------|----------|
+| `OPENAI_API_KEY not set` | Create `.env` with `OPENAI_API_KEY=sk-...` |
+| Low quality extraction | Check image quality in source PDF |
+| Judge removes all entity markers | Already handled — falls back to original content |
+| Mermaid diagram shows syntax error | Regenerate HTML: `uv run python convert_to_friendly.py ...` |
+| Port 5000 in use | Use `--port 8080` flag |
+| Correction modal shows partial content | Make sure you're viewing the judge HTML |
 
-Create `.env` file:
-```bash
-OPENAI_API_KEY=sk-your-key-here
-```
-
-Or set environment variable:
-```bash
-export OPENAI_API_KEY=sk-your-key-here
-python run_pipeline.py document.pdf
-```
-
-### Low Quality Extraction
-
-Check image quality in source PDF:
-- Resolution should be >= 150 DPI
-- Text should be clear and readable
-- Contrast should be good
-
-View confidence scores:
-```bash
-cat output/manifest.yaml | grep confidence
-```
-
-### Slow Processing
-
-For documents with many images:
-- Processing time ≈ 2-5 seconds per image
-- 20 images ≈ 1-2 minutes
-- Large documents (50+ images) may take 5-10 minutes
-
-Consider:
-- Using `gpt-4o-mini` for faster processing (edit `pipeline_config.py`)
-- Processing during off-peak hours
-
-### Missing Entities
-
-Check console output for errors during processing.
-
-Verify input PDF is not corrupted:
-```bash
-# Try opening with another tool
-open document.pdf  # macOS
-xdg-open document.pdf  # Linux
-```
-
-## Examples
-
-### Process Emergency Manual
-
-```bash
-python run_pipeline.py "All chapters - EMERGENCY PROCEDURES MANUAL_p17-21.pdf"
-```
-
-Expected output:
-- ~15-20 entities
-- Mix of text, tables, and possibly diagrams
-- Contact tables converted to YAML
-- Procedure text in Markdown
-
-### Process Technical Documentation
-
-```bash
-python run_pipeline.py technical_spec.pdf output/tech_spec/
-```
-
-### Batch Process Multiple Documents (via shell)
-
-```bash
-for pdf in *.pdf; do
-    echo "Processing $pdf..."
-    python run_pipeline.py "$pdf" "output/${pdf%.pdf}/"
-done
-```
+---
 
 ## Next Steps
 
-1. **Process your first document**
-   ```bash
-   python run_pipeline.py your_document.pdf
-   ```
+1. Process your first document with `run_pipeline.py`
+2. Run the judge with `run_judge.py`
+3. Generate HTML with `convert_to_friendly.py`
+4. Review in the comparison viewer with `compare_viewer.py`
+5. Check confidence scores in `manifest.yaml`
 
-2. **Review the output**
-   ```bash
-   cat output/manifest.yaml
-   ls output/entities/
-   ```
+## Further Reading
 
-3. **Check confidence scores**
-   - Low scores (< 0.8) may need manual review
-   - Found in manifest.yaml and entity metadata
-
-4. **Integrate with your system**
-   - Use entity files for retrieval
-   - Load final_document.md for LLM context
-   - Parse manifest.yaml for metadata
-
-## Support
-
-For detailed information:
-- [PIPELINE_README.md](PIPELINE_README.md) - Full documentation
-- [PIPELINE_DESIGN.md](PIPELINE_DESIGN.md) - Architecture details
-- Check `manifest.yaml` for processing metadata
-- Review entity files for conversion quality
+- [Pipeline Guide](PIPELINE_README.md) — Entity formats and detailed reference
+- [Pipeline Design](../architecture/PIPELINE_DESIGN.md) — Architecture and design decisions
+- [Pipeline Flow](../architecture/PIPELINE_FLOW.md) — Data flow diagrams

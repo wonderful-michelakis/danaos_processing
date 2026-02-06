@@ -16,6 +16,7 @@ venv/
 # Generated outputs
 outputs/
 output/
+new_outputs/
 *.log
 
 # IDE

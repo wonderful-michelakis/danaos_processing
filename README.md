@@ -1,347 +1,170 @@
 # Document Processing Pipeline
 
-Complete pipeline for extracting, processing, and converting technical PDF documents into user-friendly HTML with entity-level corrections.
+Automated pipeline for extracting, normalizing, and converting unstructured PDF documents into clean, structured HTML — with a human-in-the-loop verification and correction interface.
 
-**Text** → Markdown | **Tables** → YAML | **Diagrams** → Mermaid → **User-Friendly HTML**
+**Text** → Markdown | **Tables** → YAML | **Diagrams** → Mermaid | **LLM Judge** → Normalized | **HTML** → User-Friendly
 
 ---
 
-## Quick Start
+## Prerequisites
+
+- Python 3.11+
+- OpenAI API key (for vision classification, judge, and AI-assisted corrections)
+
+## Setup
 
 ```bash
-# 1. Process PDF document
-python run_pipeline.py document.pdf
 
-# 2. Generate user-friendly HTML
-python convert_to_friendly.py outputs/p86_90/final_document.md
+# 1. Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 3. Launch comparison viewer (with corrections)
-python compare_viewer.py document.pdf outputs/p86_90/
+# 2. Install dependencies (uv automatically creates and manages the virtual environment)
+uv sync
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env and add your OpenAI API key:
+#   OPENAI_API_KEY=sk-your-key-here
 ```
 
-**Setup:**
-```bash
-pip install -r requirements.txt
-echo "OPENAI_API_KEY=your-key" > .env
+### `.env` file
+
+Create a `.env` file in the project root with:
+
 ```
+OPENAI_API_KEY=sk-your-key-here
+```
+
+This key is used for:
+- Vision API (image classification and extraction)
+- Document Judge (entity merging and normalization)
+- AI-assisted corrections in the comparison viewer
 
 ---
 
-## Complete Workflow
-
-### Step 1: Process Document
-Extract entities (text, tables, diagrams, forms) from PDF using Docling and OpenAI vision.
-
-```bash
-python run_pipeline.py document.pdf [--pages 86-90]
-```
-
-**Output**: `outputs/p86_90/` directory with:
-- `entities/` - Individual entity files (E001.md, E002.yaml, E003.mmd)
-- `manifest.yaml` - Entity metadata and confidence scores
-- `final_document.md` - Assembled technical document
-
-### Step 2: Generate User-Friendly HTML
-Convert technical markdown to human-readable HTML with simplified language, visual tables, and professional styling.
-
-```bash
-python convert_to_friendly.py outputs/p86_90/final_document.md
-```
-
-**Output**: `outputs/p86_90/final_document_friendly.html`
-
-### Step 3: Compare and Correct
-Launch side-by-side PDF-HTML comparison viewer with entity-level corrections.
-
-```bash
-python compare_viewer.py document.pdf outputs/p86_90/ [--port 5000] [--no-browser]
-```
-
-**Features**:
-- Synchronized PDF-HTML navigation
-- Click entity badges to edit
-- Manual or AI-assisted corrections
-- Real-time HTML regeneration
-- Full audit trail in `corrections.yaml`
-
-### Step 4: Make Corrections (Optional)
-In the comparison viewer:
-1. Click any entity badge (E001, E002, etc.)
-2. Choose correction method:
-   - **Manual Edit**: Direct text/YAML editing
-   - **AI-Assisted**: Describe issue → GPT-4 generates fix
-3. Save → HTML auto-regenerates with changes
-
-**Corrections tracked in**: `outputs/p86_90/corrections.yaml`
-
----
-
-## What It Does
-
-Takes a PDF like this:
-- Mixed text and tables
-- Images with text/tables/diagrams
-- Scanned content
-
-Produces this:
-```
-output/
-├── entities/
-│   ├── E001_text.md       ← Text in Markdown
-│   ├── E002_table.yaml    ← Tables in YAML
-│   └── E003_diagram.mmd   ← Diagrams in Mermaid
-├── final_document.md      ← All entities assembled
-└── manifest.yaml          ← Metadata & confidence scores
-```
-
-**No images in output** - everything converted to text-based formats.
-
----
-
-## Features
-
-✅ **Intelligent Classification** - Vision AI determines content type
-✅ **High-Quality Extraction** - Docling + OpenAI for best results
-✅ **Standardized Output** - Only 3 formats (MD, YAML, Mermaid)
-✅ **User-Friendly HTML** - Simplified language with visual tables
-✅ **Side-by-Side Comparison** - PDF-HTML viewer with sync navigation
-✅ **Entity-Level Corrections** - Manual or AI-assisted editing
-✅ **Audit Trail** - Full correction history with metadata
-✅ **Quality Tracking** - Confidence scores for every entity
-✅ **LLM-Optimized** - Clean, parseable, ready for retrieval
-✅ **Production-Ready** - Error handling, retry logic, validation
-
----
-
-## Documentation
-
-📚 **[Complete Documentation](docs/)** - All documentation organized by category
-🚀 **[Quick Start](docs/guides/QUICK_START.md)** - Get started in 5 minutes
-🏗️ **[Architecture](docs/architecture/)** - System design and architecture
-📖 **[User Guides](docs/guides/)** - Complete reference guides
-💻 **[Development](docs/development/)** - Implementation notes and decisions
-
----
-
-## Example Output
-
-**Input:** Emergency procedures manual (mixed text, tables, contact info, flowcharts)
-
-**Output entities:**
-```yaml
-# E002_table.yaml
-vessel_contacts:
-  - vessel_name: "DIMITRIS C"
-    flag: "MAL"
-    telephone:
-      master: "+870771306882"
-    email: "vsl_123@danaos.com"
-```
-
-```mermaid
-# E003_diagram.mmd
-graph TD
-    A[Observe vessel] --> B{Communicate?}
-    B -->|Yes| C[Verify status]
-    B -->|No| D[Inform RCC]
-```
-
-**Final document:** All entities in original order with markers
-
----
-
-## Pipeline Architecture
+## Pipeline Overview
 
 ```
-PDF → Docling → Classify → Extract → Convert → Output
-                   ↓
-              Vision API
-           (for images only)
-```
-
-**Docling extracts:**
-- Text blocks → Direct to Markdown
-- PDF tables → Convert to YAML
-- Images → Send to Vision API
-
-**Vision API processes images:**
-1. Classify: Text? Table? Diagram?
-2. Extract based on type
-3. Convert to standard format
-
----
-
-## Installation
-
-```bash
-# Clone/download this repository
-cd document_processing
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up OpenAI API key
-echo "OPENAI_API_KEY=sk-your-key-here" > .env
-
-# Verify installation
-python test_pipeline.py
+PDF
+ │
+ ├─ Step 1: Extract ──────── run_pipeline.py
+ │   Docling parses PDF → entities (text, tables, images)
+ │   Vision API classifies and extracts image content
+ │   Output: entities/ + final_document.md + manifest.yaml
+ │
+ ├─ Step 2: Judge (optional) ── run_judge.py
+ │   LLM merges fragmented entities (split lists, headers, etc.)
+ │   Fixes OCR artifacts and formatting issues
+ │   Output: final_document_judge.md
+ │
+ ├─ Step 3: Convert to HTML ── convert_to_friendly.py
+ │   Markdown/YAML/Mermaid → styled, readable HTML
+ │   Output: final_document_friendly.html (or _judge_friendly.html)
+ │
+ └─ Step 4: Review & Correct ── compare_viewer.py
+     Side-by-side PDF vs HTML comparison
+     Click entities to edit (manual or AI-assisted)
+     Changes auto-regenerate HTML
+     Output: corrections.yaml (audit trail)
 ```
 
 ---
 
 ## Usage
 
-### Command Line
+### Step 1: Process a PDF
 
 ```bash
-# Process document
-python run_pipeline.py document.pdf [--pages 86-90]
-
-# Generate friendly HTML
-python convert_to_friendly.py outputs/p86_90/final_document.md
-
-# Launch comparison viewer
-python compare_viewer.py document.pdf outputs/p86_90/ [--port 5000] [--no-browser]
+uv run python run_pipeline.py document.pdf
 ```
 
-### Programmatic
-
-```python
-# Process document
-from document_pipeline import DocumentPipeline
-pipeline = DocumentPipeline()
-final_doc = pipeline.process_document("document.pdf")
-
-# Convert to friendly HTML
-from src.converter.document_converter import DocumentConverter
-converter = DocumentConverter("outputs/p86_90/final_document.md", "outputs/p86_90")
-html_path = converter.convert()
-
-# Manage corrections
-from src.corrections.correction_manager import CorrectionManager
-manager = CorrectionManager("outputs/p86_90")
-manager.apply_correction("E002", corrected_content, "manual", "Fixed unit")
-manager.regenerate_html()
+Options:
+```bash
+uv run python run_pipeline.py document.pdf --pages 1-10     # specific page range
+uv run python run_pipeline.py document.pdf --output mydir/   # custom output dir
 ```
 
-### Load Results
-
-```python
-import yaml
-
-# Read manifest
-with open('output/manifest.yaml') as f:
-    manifest = yaml.safe_load(f)
-
-# Get all tables
-tables = [e for e in manifest['entities'] if e['type'] == 'table']
-
-# Read final document for LLM
-with open('output/final_document.md') as f:
-    context = f.read()
+**Output** (in `outputs/<name>/`):
 ```
+outputs/<name>/
+├── entities/              # Individual entity files
+│   ├── E001_EntityType.TEXT.md
+│   ├── E002_EntityType.TABLE.yaml
+│   └── E003_EntityType.DIAGRAM.mmd
+├── final_document.md      # All entities assembled with markers
+└── manifest.yaml          # Entity metadata and confidence scores
+```
+
+### Step 2: Run the Judge (recommended)
+
+The judge is an LLM post-processing step that:
+- Merges fragmented entities (e.g., list items split across entities)
+- Combines repeating page headers into single entities
+- Fixes OCR artifacts and formatting issues
+- Preserves all content — never adds or removes information
+
+```bash
+uv run python run_judge.py outputs/<name>/
+```
+
+Options:
+```bash
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini  # cheaper model
+```
+
+**Output**: `outputs/<name>/final_document_judge.md`
+
+### Step 3: Generate HTML
+
+```bash
+# From regular pipeline output:
+uv run python convert_to_friendly.py outputs/<name>/final_document.md
+
+# From judge output (recommended):
+uv run python convert_to_friendly.py outputs/<name>/final_document_judge.md
+```
+
+**Output**: `final_document_friendly.html` or `final_document_judge_friendly.html`
+
+### Step 4: Review and Correct
+
+Launch the side-by-side comparison viewer:
+
+```bash
+# Compare original PDF with generated HTML
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html
+
+# Options
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html --port 8080
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html --no-browser
+```
+
+In the viewer:
+1. **Navigate** — PDF and HTML panels sync by page
+2. **Review** — Compare original vs processed content
+3. **Correct** — Click any entity badge (E001, E002, etc.) to open the correction modal
+4. **Edit** — Choose manual editing or AI-assisted correction
+5. **Save** — Changes auto-regenerate the HTML
+
+All corrections are tracked in `outputs/<name>/corrections.yaml`.
 
 ---
 
-## Configuration
+## Full Example (end-to-end)
 
-Edit `pipeline_config.py`:
+```bash
+# Process the PDF
+uv run python run_pipeline.py manuals/procedures_manual.pdf
 
-```python
-# Vision model
-VISION_MODEL = "gpt-4o"  # or "gpt-4o-mini"
+# Run the judge to normalize entities
+uv run python run_judge.py outputs/procedures_manual/
 
-# Max tokens for extraction
-VISION_MAX_TOKENS = 4096
+# Generate HTML from the judge output
+uv run python convert_to_friendly.py outputs/procedures_manual/final_document_judge.md
 
-# Output directories
-OUTPUT_DIR = "output"
+# Review side-by-side and make corrections
+uv run python compare_viewer.py manuals/procedures_manual.pdf outputs/procedures_manual/final_document_judge_friendly.html
 ```
-
----
-
-## Quality Assurance
-
-Every entity includes confidence score and metadata:
-
-```yaml
-entity_id: E002
-type: table
-source_page: 2
-confidence: 0.88  # ← Check this!
-processing_notes: "Image classification: Contact table"
-```
-
-**Review entities with confidence < 0.8**
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "API key required" | Create `.env` with `OPENAI_API_KEY=...` |
-| Low quality extraction | Check image quality in source PDF |
-| Slow processing | Normal: ~2-5 sec per image |
-| Missing entities | Check console output for errors |
-| Comparison viewer won't load | Generate HTML first: `python convert_to_friendly.py outputs/p86_90/final_document.md` |
-| Corrections not showing | Check that `corrections.yaml` was created and HTML regenerated |
-| Port 5000 in use | Use `--port 8080` flag |
-| Entity badge not clickable | Refresh browser or check console for JS errors |
-
-See [Quick Start Guide](docs/guides/QUICK_START.md#troubleshooting) for details.
-
----
-
-## Cost Estimate
-
-Approximate OpenAI API costs:
-- Small doc (< 10 images): $0.10 - $0.50
-- Medium doc (10-50 images): $0.50 - $2.00
-- Large doc (> 50 images): $2.00+
-
-Using `gpt-4o` model (best quality/cost balance).
-
----
-
-## Limitations
-
-- Does not preserve exact visual layout
-- Complex diagrams (50+ nodes) may simplify
-- Handwritten text recognition limited
-- Processing is sequential (not parallel yet)
-
-See [Pipeline Design](docs/architecture/PIPELINE_DESIGN.md#pitfalls) for details and solutions.
-
----
-
-## Correction System
-
-The correction system allows entity-level edits with full audit trail:
-
-### How It Works
-1. **Entity-level corrections**: Each entity (E001, E002, etc.) can be individually corrected
-2. **Dual correction modes**: Manual editing or AI-assisted (GPT-4)
-3. **Automatic propagation**:
-   - Entity file updated → `final_document.md` rebuilt → HTML regenerated
-4. **Audit trail**: All corrections tracked in `corrections.yaml`
-
-### Correction Example
-```yaml
-# corrections.yaml
-corrections:
-  E002:
-    correction_type: manual
-    timestamp: "2026-02-05T14:30:00"
-    reason: "Fixed temperature unit"
-    original_content: "Viscosity at 50°C: Max 10.0 cSt"
-    corrected_content: "Viscosity at 60°C: Max 10.0 cSt"
-```
-
-### Revert Corrections
-- Edit `corrections.yaml` to remove correction
-- Restore entity file from backup
-- Regenerate: `python convert_to_friendly.py outputs/p86_90/final_document.md`
 
 ---
 
@@ -349,89 +172,157 @@ corrections:
 
 ```
 document_processing/
-├── src/                          # Source code
-│   ├── pipeline/                 # Document processing pipeline
-│   │   ├── document_pipeline.py  # Main orchestrator
-│   │   ├── entity_processor.py   # Format conversion
-│   │   ├── entity_classifier.py  # Vision API classification
-│   │   └── pipeline_config.py    # Configuration
-│   ├── converter/                # HTML conversion
-│   │   └── document_converter.py # Technical → friendly HTML
-│   └── corrections/              # Correction system
-│       ├── correction_manager.py # Correction backend
-│       └── compare_viewer.py     # Flask server
-├── web/                          # Web UI
-│   ├── templates/                # HTML templates
-│   │   └── compare.html
-│   └── static/                   # CSS/JS assets
-│       ├── css/
-│       │   ├── compare.css
-│       │   └── correction_modal.css
-│       └── js/
-│           ├── compare.js
-│           └── correction_modal.js
-├── outputs/                      # Processed documents
-│   ├── p86_90/                   # Example output
-│   │   ├── entities/             # Entity files
-│   │   ├── manifest.yaml         # Metadata
-│   │   ├── final_document.md     # Technical doc
-│   │   ├── final_document_friendly.html
-│   │   └── corrections.yaml      # Corrections
-│   └── p307_308/                 # Another example
-├── docs/                         # Documentation
-│   ├── guides/                   # User guides
-│   ├── architecture/             # System design
-│   ├── development/              # Dev notes
-│   └── README.md                 # Documentation index
-├── run_pipeline.py               # CLI: Process PDF
-├── convert_to_friendly.py        # CLI: Generate HTML
-├── compare_viewer.py             # CLI: Launch viewer
-├── test_pipeline.py              # Installation test
-├── requirements.txt
-├── README.md
-└── .env                          # API keys
+├── src/
+│   ├── pipeline/                    # Document processing pipeline
+│   │   ├── pipeline_config.py       # Configuration and entity types
+│   │   ├── document_pipeline.py     # Main orchestrator
+│   │   ├── entity_processor.py      # Entity extraction and formatting
+│   │   ├── entity_classifier.py     # Vision API classification
+│   │   └── document_judge.py        # LLM judge (merging & normalization)
+│   ├── converter/
+│   │   └── document_converter.py    # Markdown/YAML/Mermaid → HTML
+│   └── corrections/
+│       ├── correction_manager.py    # Correction backend and audit trail
+│       └── compare_viewer.py        # Flask server for comparison UI
+├── web/
+│   ├── templates/
+│   │   └── compare.html             # Comparison viewer template
+│   └── static/
+│       ├── css/                     # Stylesheets
+│       └── js/                      # Frontend logic
+├── docs/                            # Documentation
+│   ├── architecture/                # System design docs
+│   ├── guides/                      # User guides
+│   └── development/                 # Dev notes and changelogs
+├── run_pipeline.py                  # CLI: Process PDF → entities
+├── run_judge.py                     # CLI: LLM judge normalization
+├── convert_to_friendly.py           # CLI: Generate HTML
+├── compare_viewer.py                # CLI: Launch comparison viewer
+├── judge_prompt.md                  # System prompt for the LLM judge
+├── requirements.txt                 # Python dependencies
+└── .env                             # API keys (not committed)
 ```
 
 ---
 
-## Next Steps
+## How It Works
 
-1. **Test installation:**
-   ```bash
-   python test_pipeline.py
-   ```
+### Entity Extraction
 
-2. **Process document:**
-   ```bash
-   python run_pipeline.py document.pdf
-   ```
+The pipeline extracts content from PDFs into three standardized formats:
 
-3. **Generate friendly HTML:**
-   ```bash
-   python convert_to_friendly.py outputs/p86_90/final_document.md
-   ```
+| Content Type | Output Format | Example |
+|-------------|--------------|---------|
+| Text / Headings | Markdown (`.md`) | Headers, paragraphs, lists |
+| Tables | YAML (`.yaml`) | Data tables, forms, key-value pairs |
+| Diagrams | Mermaid (`.mmd`) | Flowcharts, process diagrams |
+| Image Text | Markdown (`.md`) | Text extracted from images via Vision API |
 
-4. **Launch comparison viewer:**
-   ```bash
-   python compare_viewer.py document.pdf outputs/p86_90/
-   ```
+Every entity gets a unique ID (E001, E002, ...) and metadata tracked in `manifest.yaml`.
 
-5. **Make corrections** (click entity badges in viewer)
+### Document Judge
 
-6. **Review outputs:**
-   ```bash
-   cat outputs/p86_90/manifest.yaml
-   cat outputs/p86_90/corrections.yaml  # If corrections made
-   ```
+The judge is an LLM-based post-processor that reads `final_document.md` and produces a normalized version. It uses `[ENTITY:EXXX]` placeholder tokens (instead of HTML comments) when communicating with the LLM to prevent marker stripping.
+
+Key behaviors:
+- **Merges** fragmented entities (split lists, headers, paragraphs)
+- **Combines** repeating page headers into single entities per page
+- **Formats** content according to specifications (bullets, tables, etc.)
+- **Fixes** OCR artifacts and broken words
+- **Never** adds or removes information
+
+The judge prompt is configured in `judge_prompt.md` at the project root.
+
+### Comparison Viewer
+
+A Flask-based web app that shows the original PDF and processed HTML side-by-side:
+- Synchronized page navigation
+- Entity-level click-to-edit with manual or AI-assisted corrections
+- Document-wide AI corrections (e.g., "fix all date formats")
+- Automatic HTML regeneration after every correction
+- Full audit trail in `corrections.yaml`
+
+When viewing judge output, corrections are applied directly to `final_document_judge.md`. When viewing regular output, corrections update individual entity files and rebuild `final_document.md`.
 
 ---
 
-## Support
+## Configuration
 
-- Check `manifest.yaml` for processing details
-- Review entity files for conversion quality
-- Examine console output for errors
-- Read documentation files for detailed information
+### Pipeline Config
+
+Edit `src/pipeline/pipeline_config.py`:
+
+```python
+VISION_MODEL = "gpt-4o"        # or "gpt-4o-mini" for lower cost
+VISION_MAX_TOKENS = 4096        # max tokens for extraction
+```
+
+### Judge Model
+
+```bash
+uv run python run_judge.py outputs/<name>/ --model gpt-4o       # default, best quality
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini   # faster, cheaper
+```
+
+---
+
+## Output Files Reference
+
+| File | Description |
+|------|-------------|
+| `entities/` | Individual entity files (one per extracted element) |
+| `manifest.yaml` | Entity metadata, confidence scores, file paths |
+| `final_document.md` | All entities assembled with HTML comment markers |
+| `final_document_judge.md` | Judge-normalized version (merged entities) |
+| `final_document_friendly.html` | User-friendly HTML from pipeline output |
+| `final_document_judge_friendly.html` | User-friendly HTML from judge output |
+| `corrections.yaml` | Audit trail of all corrections made |
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `OPENAI_API_KEY not set` | Create `.env` with `OPENAI_API_KEY=sk-...` |
+| Low quality extraction | Check image quality in source PDF |
+| Judge removes all entity markers | Already handled — falls back to original content |
+| Mermaid diagram shows syntax error | Regenerate HTML: `uv run python convert_to_friendly.py ...` |
+| Port 5000 in use | Use `--port 8080` flag |
+| Correction modal shows partial content | Make sure you're viewing the judge HTML |
+
+---
+
+## Cost Estimate
+
+Approximate OpenAI API costs per document:
+
+| Document Size | Pipeline | Judge | Total |
+|--------------|----------|-------|-------|
+| Small (< 10 pages) | $0.10 - $0.50 | $0.05 - $0.10 | ~$0.50 |
+| Medium (10-50 pages) | $0.50 - $2.00 | $0.10 - $0.30 | ~$2.00 |
+| Large (> 50 pages) | $2.00+ | $0.30+ | ~$3.00+ |
+
+AI-assisted corrections: ~$0.03-0.06 per correction (GPT-4o).
+
+---
+
+## Limitations
+
+- Does not preserve exact visual layout (converts to structured formats)
+- Complex diagrams with 50+ nodes may be simplified
+- Handwritten text recognition is limited
+- Processing is sequential (not parallelized)
+- Judge effectiveness depends on prompt tuning for document type
+
+---
+
+## Documentation
+
+- [Quick Start Guide](docs/guides/QUICK_START.md) — Get up and running
+- [Pipeline Design](docs/architecture/PIPELINE_DESIGN.md) — Architecture and design decisions
+- [Pipeline Guide](docs/guides/PIPELINE_README.md) — Detailed entity format reference
+- [Development Notes](docs/development/) — Changelogs and implementation details
 
 ---
 

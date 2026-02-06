@@ -2,13 +2,57 @@
 
 ## Executive Summary
 
-This pipeline converts unstructured PDFs into standardized, LLM-friendly formats without any images in the output. Everything is converted to text-based representations: Markdown, YAML, or Mermaid.
+This pipeline converts unstructured PDFs into standardized, LLM-friendly formats without any images in the output. Everything is converted to text-based representations: Markdown, YAML, or Mermaid. An LLM judge normalizes the output, HTML is generated for review, and a human-in-the-loop comparison viewer allows corrections.
+
+**Pipeline Flow:**
+```
+PDF → Extract → Judge → HTML → Review & Correct
+```
 
 ---
 
-## 1. Output Format Schema & Example
+## 1. Architecture Overview
 
-### Schema Design Principles
+### Four-Step Pipeline
+
+| Step | Tool | Input | Output |
+|------|------|-------|--------|
+| 1. Extract | `run_pipeline.py` | PDF | entities/, final_document.md, manifest.yaml |
+| 2. Judge | `run_judge.py` | output dir | final_document_judge.md |
+| 3. Convert | `convert_to_friendly.py` | markdown file | *_friendly.html |
+| 4. Review | `compare_viewer.py` | PDF + HTML | corrections.yaml |
+
+### Component Map
+
+```
+document_processing/
+├── src/
+│   ├── pipeline/                    # Step 1: Extraction
+│   │   ├── pipeline_config.py       # Configuration and entity types
+│   │   ├── document_pipeline.py     # Main orchestrator
+│   │   ├── entity_processor.py      # Entity extraction and formatting
+│   │   ├── entity_classifier.py     # Vision API classification
+│   │   └── document_judge.py        # Step 2: LLM judge
+│   ├── converter/
+│   │   └── document_converter.py    # Step 3: Markdown → HTML
+│   └── corrections/
+│       ├── correction_manager.py    # Correction backend and audit trail
+│       └── compare_viewer.py        # Step 4: Flask comparison viewer
+├── web/
+│   ├── templates/compare.html       # Comparison viewer template
+│   └── static/                      # CSS and JS assets
+├── run_pipeline.py                  # CLI: Step 1
+├── run_judge.py                     # CLI: Step 2
+├── convert_to_friendly.py           # CLI: Step 3
+├── compare_viewer.py                # CLI: Step 4
+└── judge_prompt.md                  # System prompt for the LLM judge
+```
+
+---
+
+## 2. Step 1: Entity Extraction
+
+### Design Principles
 
 - **Modular**: Each entity saved separately for granular access
 - **Standardized**: Only 3 formats (Markdown, YAML, Mermaid)
@@ -16,278 +60,32 @@ This pipeline converts unstructured PDFs into standardized, LLM-friendly formats
 - **LLM-Optimized**: Clean, structured, easily parseable
 - **Compact**: No redundancy, no image blobs
 
-### Complete Output Structure
+### Output Structure
 
 ```
-output/
+outputs/<name>/
 ├── entities/                    # Individual entity files
-│   ├── E001_text.md            # Text content
-│   ├── E002_table.yaml         # Table data
-│   ├── E003_diagram.mmd        # Diagram (Mermaid)
-│   ├── E004_image_text.md      # Text extracted from image
-│   └── E005_table.yaml         # Table extracted from image
+│   ├── E001_EntityType.TEXT.md
+│   ├── E002_EntityType.TABLE.yaml
+│   ├── E003_EntityType.DIAGRAM.mmd
+│   ├── E004_EntityType.IMAGE_TEXT.md
+│   └── E005_EntityType.TABLE.yaml
 ├── final_document.md           # All entities assembled in order
 └── manifest.yaml               # Processing metadata
 ```
 
-### Entity File Format Examples
+### Entity Types
 
-#### Text Entity (`E001_text.md`)
-```markdown
----
-entity_id: E001
-type: text
-source_page: 1
-position: 1
-original_bbox: [72.0, 156.3, 523.2, 789.4]
-confidence: 1.0
-processing_notes: "Direct text extraction from Docling"
----
+| Content Type | Output Format | Source |
+|-------------|--------------|--------|
+| Text / Headings | Markdown (`.md`) | Docling direct |
+| Tables | YAML (`.yaml`) | Docling or Vision API fallback |
+| Diagrams | Mermaid (`.mmd`) | Vision API |
+| Image Text | Markdown (`.md`) | Vision API OCR |
+| Forms | YAML (`.yaml`) | Vision API |
+| Mixed | Markdown (`.md`) | Vision API |
 
-## Emergency Reporting Process
-
-Masters are reminded of their legal obligation to report incidents
-to Flag, Port and Coast State Authorities, after first advising
-the Managers.
-
-### During Office Hours
-
-The Master must report all emergencies by telephone and email to
-the Head Office of DANAOS Shipping Co. Ltd (DPA) as soon as possible.
-
-Office normal working hours are Monday to Friday 09:00 to 18:00 hrs.
-```
-
-#### Table Entity (`E002_table.yaml`)
-```yaml
-# Metadata
-# entity_id: E002
-# type: table
-# source_page: 2
-# position: 2
-# original_bbox: [50.0, 100.0, 550.0, 400.0]
-# confidence: 1.0
-# processing_notes: "Table extracted from Docling"
-
-fleet_1_vessels:
-  - vessel_name: "DIMITRIS C"
-    flag: "MAL"
-    classification: "DNV"
-    mmsi: "229665000"
-    callsign: "9HA3500"
-    contact:
-      master_phone: "+870771306882"
-      bridge_phone: "+870771306881"
-      satellite_phone: "+870773912280"
-      email: "vsl_123@danaos.com"
-
-  - vessel_name: "DIMITRA C"
-    flag: "MAL"
-    classification: "NK"
-    mmsi: "256058000"
-    callsign: "9HA3802"
-    contact:
-      master_phone: "+870771370712"
-      bridge_phone: "+870771370713"
-      backup_phone: "+870773069604"
-      email: "vsl_124@danaos.com"
-```
-
-#### Diagram Entity (`E003_diagram.mmd`)
-```mermaid
-%% Metadata
-%% entity_id: E003
-%% type: diagram
-%% source_page: 3
-%% position: 3
-%% confidence: 0.92
-%% processing_notes: "Image classification: Flowchart for emergency reporting"
-
-graph TD
-    A[Observe vessel<br/>apparently in danger] --> B{Try to<br/>communicate}
-
-    B -->|Response<br/>received| C{Evaluate<br/>response}
-    B -->|No response| D[Obtain vessel<br/>information]
-
-    C -->|Satisfied<br/>no assistance needed| E[Verify assistance<br/>not required]
-    C -->|Not satisfied| D
-
-    D --> F[Inform nearest<br/>Rescue Coordination<br/>Center RCC]
-
-    E --> G[Proceed on passage<br/>Keep logbook records]
-
-    F --> H[Keep track of vessel<br/>radar, visual, comms]
-
-    H --> I{RCC permission<br/>to continue?}
-
-    I -->|Yes| J[Make logbook entries<br/>Continue voyage]
-    I -->|No| K[Remain on station<br/>Await instructions]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style G fill:#9f9,stroke:#333,stroke-width:2px
-    style J fill:#9f9,stroke:#333,stroke-width:2px
-```
-
-#### Image with Text (`E004_image_text.md`)
-```markdown
----
-entity_id: E004
-type: image_text
-source_page: 4
-position: 4
-original_bbox: [100.0, 200.0, 500.0, 600.0]
-confidence: 0.95
-processing_notes: "Image classification: Text document/form"
----
-
-### Important Contact Numbers
-
-**Emergency Response Team**
-All telephone numbers are listed in Chapter 7
-
-**During Office Hours:**
-- DPA/SQE Director
-- Operations Director
-- Technical Director
-
-**Outside Office Hours:**
-Contact any of the above personnel and follow up with email.
-
-**24-Hour Emergency Line:**
-+30 210 4191508
-```
-
-#### Image with Table (`E005_table.yaml`)
-```yaml
-# Metadata
-# entity_id: E005
-# type: table
-# source_page: 5
-# position: 5
-# original_bbox: [75.0, 150.0, 525.0, 700.0]
-# confidence: 0.88
-# processing_notes: "Image classification: Contact information table"
-
-classification_societies:
-  - name: "DNV Piraeus"
-    contact_person: "A. Pagalos / S. Lamprinopoulos"
-    telephone: "+30 2104100200"
-    fax: "+30 210 4220621"
-    mobile:
-      - "+30 6944 261974"
-      - "+30 6945 150050"
-    email: "piraeus@dnv.com"
-
-  - name: "Lloyds Athens"
-    contact_person: "Deilakis / Anastassovitis"
-    telephone: "+30 2104580800"
-    fax: "+2112686604"
-    mobile:
-      - "+30 6955663683"
-      - "+30 6946337459"
-    email: "piraeus@lr.org"
-```
-
-### Final Document (`final_document.md`)
-
-```markdown
----
-document_title: "Emergency Procedures Manual Chapter 3"
-total_entities: 15
-processed_date: "2026-02-05 14:45:32"
-source_file: "emergency_procedures_ch3.pdf"
----
-
-# Document: Emergency Procedures Manual Chapter 3
-
-<!-- Entity: E001 | Type: text | Page: 1 -->
-## Emergency Reporting Process
-
-Masters are reminded of their legal obligation...
-
-<!-- Entity: E002 | Type: table | Page: 2 -->
-```yaml
-fleet_1_vessels:
-  - vessel_name: "DIMITRIS C"
-    flag: "MAL"
-    ...
-```
-
-<!-- Entity: E003 | Type: diagram | Page: 3 -->
-```mermaid
-graph TD
-    A[Observe vessel] --> B{Try to communicate}
-    ...
-```
-
-<!-- Entity: E004 | Type: image_text | Page: 4 -->
-### Important Contact Numbers
-
-**Emergency Response Team**...
-
-<!-- Entity: E005 | Type: table | Page: 5 -->
-```yaml
-classification_societies:
-  - name: "DNV Piraeus"
-    ...
-```
-```
-
-### Manifest File (`manifest.yaml`)
-
-```yaml
-source_document: "emergency_procedures_ch3.pdf"
-processed_date: "2026-02-05T14:45:32.123456"
-total_entities: 15
-
-entity_type_counts:
-  text: 8
-  table: 4
-  diagram: 2
-  image_text: 1
-
-entities:
-  - id: E001
-    type: text
-    page: 1
-    position: 1
-    confidence: 1.0
-    file: "entities/E001_text.md"
-
-  - id: E002
-    type: table
-    page: 2
-    position: 2
-    confidence: 1.0
-    file: "entities/E002_table.yaml"
-
-  - id: E003
-    type: diagram
-    page: 3
-    position: 3
-    confidence: 0.92
-    file: "entities/E003_diagram.mmd"
-
-  - id: E004
-    type: image_text
-    page: 4
-    position: 4
-    confidence: 0.95
-    file: "entities/E004_image_text.md"
-
-  - id: E005
-    type: table
-    page: 5
-    position: 5
-    confidence: 0.88
-    file: "entities/E005_table.yaml"
-```
-
----
-
-## 2. Integration Architecture
-
-### Pipeline Flow Diagram
+### Extraction Pipeline Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -303,437 +101,294 @@ entities:
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                   ENTITY CLASSIFICATION                      │
+│              ENTITY CLASSIFICATION & PROCESSING              │
 │                                                             │
-│  ┌─────────────┐     ┌──────────────┐                     │
-│  │ Text Block  │────▶│ MARKDOWN     │ (direct)            │
-│  └─────────────┘     └──────────────┘                     │
+│  Text Block  ──→ MARKDOWN (direct)                          │
+│  PDF Table   ──→ YAML (validate → fallback to Vision)       │
+│  Image       ──→ Vision API classify → extract              │
+│                   ├─→ Text? → MARKDOWN                      │
+│                   ├─→ Table? → YAML                         │
+│                   ├─→ Diagram? → MERMAID                    │
+│                   └─→ Mixed? → Best effort                  │
 │                                                             │
-│  ┌─────────────┐     ┌──────────────┐                     │
-│  │ PDF Table   │────▶│ YAML         │ (convert MD→YAML)  │
-│  └─────────────┘     └──────────────┘                     │
-│                                                             │
-│  ┌─────────────┐     ┌──────────────┐                     │
-│  │   Image     │────▶│ Vision API   │ (classify)          │
-│  └─────────────┘     └──────────────┘                     │
-│                              │                              │
-│                              ├─→ Text? → MARKDOWN          │
-│                              ├─→ Table? → YAML             │
-│                              ├─→ Diagram? → MERMAID        │
-│                              └─→ Mixed? → Best effort       │
+│  List Detection: Consecutive list items merged into         │
+│  single entities (bullets, numbered lists)                  │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                    ENTITY PROCESSING                         │
-│  • Add metadata frontmatter                                 │
-│  • Format content                                           │
-│  • Save individual files                                    │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                   DOCUMENT ASSEMBLY                          │
+│                    DOCUMENT ASSEMBLY                         │
 │  • Combine entities in original order                       │
-│  • Add entity markers                                       │
-│  • Create manifest                                          │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                         OUTPUT                               │
-│  📁 entities/ (individual files)                            │
-│  📄 final_document.md (assembled)                           │
-│  📋 manifest.yaml (metadata)                                │
+│  • Add entity markers (<!-- Entity: E001 | ... -->)         │
+│  • Create manifest with metadata                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Component Integration
-
-#### 1. **Docling → Entity Extraction**
+### Docling Integration
 
 ```python
-# Docling provides structured access to document elements
-for page in document.pages:
-    for item in page.items:
-        if isinstance(item, TextItem):
-            # Direct text extraction - high confidence
-            entity = process_text_block(item.text)
-
-        elif isinstance(item, TableItem):
-            # Native PDF table - convert to YAML
-            table_md = item.export_to_markdown()
-            entity = process_table(table_md)
-
-        elif isinstance(item, PictureItem):
-            # Image - needs Vision API classification
-            image = item.image.pil_image
-            entity = process_image(image)
-```
-
-#### 2. **Vision API → Image Classification**
-
-```python
-# Step 1: Classify image content
-classification = vision_api.classify(image)
-# Returns: {"type": "table", "confidence": 0.88, ...}
-
-# Step 2: Extract based on classification
-if classification.type == "table":
-    content = vision_api.extract_table(image)
-    # Returns YAML-formatted table
-
-elif classification.type == "diagram":
-    content = vision_api.extract_diagram(image)
-    # Returns Mermaid syntax
-
-elif classification.type == "text":
-    content = vision_api.extract_text(image)
-    # Returns markdown-formatted text
-```
-
-#### 3. **Vision Enrichment Strategy**
-
-**When Vision API is Used:**
-- All `PictureItem` elements from Docling
-- Images that might contain text, tables, or diagrams
-- Complex visual elements
-
-**Vision API Prompts:**
-
-1. **Classification Prompt** (structured JSON output)
-   - Determines primary content type
-   - Provides confidence score
-   - Identifies mixed content
-
-2. **Extraction Prompts** (type-specific)
-   - Text: "Extract all text as markdown..."
-   - Table: "Convert table to YAML with meaningful keys..."
-   - Diagram: "Convert to Mermaid syntax..."
-
-**Quality Assurance:**
-- Confidence scores tracked in metadata
-- Processing notes for manual review
-- Original bbox preserved for reference
-
-#### 4. **Entity File Generation**
-
-```python
-# Each entity saved with:
-# 1. Metadata (YAML frontmatter for .md, comments for .yaml/.mmd)
-# 2. Standardized content format
-# 3. Unique ID (E001, E002, ...)
-# 4. Appropriate file extension
-
-def save_entity(entity):
-    filename = f"{entity.id}_{entity.type}{ext}"
-
-    if ext == ".md":
-        content = f"---\n{yaml_metadata}\n---\n\n{entity.content}"
-    elif ext == ".yaml":
-        content = f"# Metadata\n# {yaml_metadata}\n\n{entity.content}"
-    elif ext == ".mmd":
-        content = f"%% Metadata\n%% {yaml_metadata}\n\n{entity.content}"
-
-    write_file(filename, content)
-```
-
----
-
-## 3. Pitfalls & Improvements
-
-### Common Pitfalls
-
-#### ❌ **Pitfall 1: Image Quality Issues**
-
-**Problem**: Low-resolution or poorly scanned images lead to bad OCR/extraction.
-
-**Impact**: Tables become unstructured text, diagrams misclassified, text garbled.
-
-**Solution**:
-```python
-# Pipeline includes image preprocessing
-- Upscaling for small images
-- Contrast enhancement for scanned docs
-- Rotation correction for skewed images
-
-# Docling configuration
-pipeline_options.images_scale = 2.0  # 2x upscaling
-pipeline_options.do_ocr = True       # OCR for scanned content
-```
-
-**Detection**: Check `confidence` scores in manifest - low scores indicate issues.
-
-#### ❌ **Pitfall 2: Complex Table Structures**
-
-**Problem**: Tables with merged cells, nested headers, or complex formatting.
-
-**Impact**: YAML structure may not perfectly represent relationships.
-
-**Solution**:
-- Docling's native table extraction handles most cases well
-- Vision API provides fallback for image-based tables
-- Manual review for critical complex tables
-
-**Mitigation**:
-```yaml
-# Complex tables get processing notes
-processing_notes: "Complex merged cells - verify structure"
-confidence: 0.75  # Lower confidence flag
-```
-
-#### ❌ **Pitfall 3: Diagram Complexity**
-
-**Problem**: Very complex diagrams (50+ nodes, intricate relationships) may not convert fully to Mermaid.
-
-**Impact**: Simplified diagram or loss of detail.
-
-**Solution**:
-- Vision API does best-effort conversion
-- Processing notes indicate complexity
-- Consider manual review for critical diagrams
-
-**Detection**:
-```yaml
-processing_notes: "Complex diagram with 40+ nodes - review recommended"
-confidence: 0.70
-```
-
-#### ❌ **Pitfall 4: Mixed Content Images**
-
-**Problem**: Image contains both text and a table, or diagram with extensive text.
-
-**Impact**: Must choose primary extraction method.
-
-**Solution**:
-```python
-# Pipeline handles mixed content
-if classification.type == "mixed":
-    # Extract as text (preserves most information)
-    content = extract_text(image)
-    notes = f"Mixed content: {classification.description}"
-```
-
-#### ❌ **Pitfall 5: Multi-Column Layouts**
-
-**Problem**: Docling may not preserve exact reading order in complex layouts.
-
-**Impact**: Text blocks may be out of sequence.
-
-**Solution**:
-- Position tracking in metadata (`position` field)
-- Bbox coordinates for manual reordering if needed
-- Most documents have simple enough layouts
-
-#### ❌ **Pitfall 6: API Rate Limits**
-
-**Problem**: Large documents with many images hit OpenAI rate limits.
-
-**Impact**: Processing failures or slowdowns.
-
-**Solution**:
-```python
-# Add retry logic with exponential backoff
-from tenacity import retry, stop_after_attempt, wait_exponential
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=10)
-)
-def call_vision_api(image):
-    return client.chat.completions.create(...)
-```
-
-### Recommended Improvements
-
-#### ✅ **Improvement 1: Parallel Image Processing**
-
-Currently: Images processed sequentially
-Future: Process multiple images in parallel
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-
-def process_images_parallel(images, max_workers=5):
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_image, img) for img in images]
-        results = [f.result() for f in futures]
-    return results
-```
-
-#### ✅ **Improvement 2: Caching Vision API Results**
-
-Add caching to avoid reprocessing identical images:
-
-```python
-import hashlib
-import json
-
-def get_image_hash(image):
-    return hashlib.sha256(image.tobytes()).hexdigest()
-
-def process_image_cached(image):
-    cache_key = get_image_hash(image)
-    if cache_key in cache:
-        return cache[cache_key]
-
-    result = process_image(image)
-    cache[cache_key] = result
-    return result
-```
-
-#### ✅ **Improvement 3: Confidence-Based Review Queue**
-
-Flag low-confidence entities for manual review:
-
-```python
-def generate_review_queue(entities):
-    review_needed = [
-        e for e in entities
-        if e.metadata.get('confidence', 1.0) < 0.8
-    ]
-
-    return {
-        "total_flagged": len(review_needed),
-        "entities": review_needed
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+
+# Docling 2.x API
+pipeline_options = PdfPipelineOptions()
+converter = DocumentConverter(
+    format_options={
+        InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
     }
+)
+
+# Iterate items
+for item, level in doc.iterate_items():
+    if hasattr(item, 'prov') and item.prov:
+        page_num = item.prov[0].page_no
 ```
 
-#### ✅ **Improvement 4: Table Validation**
+### Table Extraction with Fallback
 
-Validate YAML table structure:
+Tables use a two-stage approach:
+1. **Primary**: Docling native extraction → validate YAML structure
+2. **Fallback**: If Docling fails (empty, malformed) → extract table region with PyMuPDF → send to Vision API
 
-```python
-def validate_table_yaml(yaml_content):
-    try:
-        data = yaml.safe_load(yaml_content)
-        # Check for common issues
-        if not isinstance(data, (dict, list)):
-            return False, "Invalid structure"
-        return True, "Valid"
-    except yaml.YAMLError as e:
-        return False, str(e)
+This achieves ~100% table capture rate vs ~60% with Docling alone.
+
+### Entity File Formats
+
+**Text Entity** (`E001_EntityType.TEXT.md`):
+```markdown
+---
+entity_id: E001
+type: text
+source_page: 1
+position: 1
+confidence: 1.0
+processing_notes: "Direct text extraction from Docling"
+---
+
+## Emergency Reporting Process
+
+Masters are reminded of their legal obligation to report incidents...
 ```
 
-#### ✅ **Improvement 5: Mermaid Syntax Validation**
+**Table Entity** (`E002_EntityType.TABLE.yaml`):
+```yaml
+# Metadata
+# entity_id: E002
+# type: table
+# confidence: 1.0
 
-Validate generated Mermaid code:
-
-```python
-def validate_mermaid(mermaid_code):
-    # Basic syntax checks
-    required_keywords = ['graph', 'flowchart', 'sequenceDiagram']
-    has_keyword = any(kw in mermaid_code for kw in required_keywords)
-
-    has_nodes = '-->' in mermaid_code or '---' in mermaid_code
-
-    return has_keyword and has_nodes
+fleet_1_vessels:
+  - vessel_name: "DIMITRIS C"
+    flag: "MAL"
+    classification: "DNV"
 ```
 
-#### ✅ **Improvement 6: Progressive Enhancement**
+**Diagram Entity** (`E003_EntityType.DIAGRAM.mmd`):
+```mermaid
+%% entity_id: E003
+%% type: diagram
+%% confidence: 0.92
 
-Start with basic extraction, enhance iteratively:
-
-```python
-# Pass 1: Fast extraction (Docling only)
-entities = extract_with_docling(pdf)
-
-# Pass 2: Classify images (vision API - classification only)
-images = [e for e in entities if e.type == 'image']
-classifications = classify_images_batch(images)
-
-# Pass 3: Extract only high-value images (tables, diagrams)
-high_value = [img for img in images if img.classification in ['table', 'diagram']]
-extract_images(high_value)
+graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action]
+    B -->|No| D[Other]
 ```
-
-#### ✅ **Improvement 7: Output Format Options**
-
-Support alternative output formats:
-
-```python
-class OutputFormat(Enum):
-    MARKDOWN = "markdown"  # Default
-    JSON = "json"          # Structured JSON
-    HTML = "html"          # Renderable HTML
-
-def export_entity(entity, format: OutputFormat):
-    if format == OutputFormat.JSON:
-        return {
-            "metadata": entity.metadata,
-            "content": entity.content
-        }
-    elif format == OutputFormat.HTML:
-        return render_html(entity)
-    else:
-        return entity.content  # Markdown
-```
-
-### Robustness Checklist
-
-✅ **Error Handling**
-- API failures: Retry with exponential backoff
-- Invalid images: Skip with warning
-- Malformed content: Fallback extraction
-
-✅ **Data Validation**
-- YAML syntax validation
-- Mermaid syntax checking
-- Metadata completeness
-
-✅ **Quality Assurance**
-- Confidence score tracking
-- Processing notes for review
-- Manifest for audit trail
-
-✅ **Performance**
-- Image preprocessing optimization
-- Efficient API usage
-- Progress tracking
-
-✅ **Maintainability**
-- Clear separation of concerns
-- Configurable parameters
-- Comprehensive logging
 
 ---
 
-## Quick Start
+## 3. Step 2: LLM Judge
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+### Purpose
 
-# 2. Set up API key
-echo "OPENAI_API_KEY=your-key" > .env
+The judge is an LLM post-processor that reads `final_document.md` and produces a normalized version. It addresses limitations of the extraction step where logically related content gets fragmented into separate entities.
 
-# 3. Process document
-python run_pipeline.py document.pdf
+### Responsibilities (in priority order)
 
-# 4. Review outputs
-ls output/entities/
-cat output/final_document.md
-cat output/manifest.yaml
+1. **Group/merge related entities** — split lists, headers, paragraphs
+2. **Format content** — consistent headers, list bullets, YAML tables
+3. **Correct obvious errors** — OCR artifacts, broken words, duplicates
+
+### Key Design Decisions
+
+- Uses `[ENTITY:EXXX]` placeholder tokens (not HTML comments) when communicating with the LLM to prevent marker stripping
+- Preserves all entity tags — merges keep only the first entity's tag
+- Never adds or removes information — formatter and grouper only
+- Conservative approach — only fixes clear, obvious errors
+
+### Merge Rules
+
+| Pattern | Action |
+|---------|--------|
+| Repeating page headers | Merge company name, approver, date, title, chapter → 1 entity per page |
+| List items | All bullet/numbered items in same list → 1 entity |
+| Multi-part headers | Title + subtitle → 1 entity |
+| Table fragments | Related table rows → 1 entity |
+| Split paragraphs | Text split mid-paragraph → 1 entity |
+
+### Input/Output
+
+- **Input**: `outputs/<name>/final_document.md`
+- **Output**: `outputs/<name>/final_document_judge.md`
+- **Config**: `judge_prompt.md` (system prompt at project root)
+- **Model**: GPT-4o (default) or GPT-4o-mini (cheaper)
+
+---
+
+## 4. Step 3: HTML Conversion
+
+### Purpose
+
+Converts the markdown document (with entity markers) into styled, readable HTML for human review.
+
+### Conversion Rules
+
+| Input Format | HTML Output |
+|-------------|-------------|
+| Markdown text | Rendered HTML with headings, lists, paragraphs |
+| YAML tables | HTML `<table>` elements with proper structure |
+| Mermaid diagrams | Rendered via mermaid.js (browser-side) |
+| Entity markers | Clickable entity badges with page/type info |
+
+### Mermaid Sanitization
+
+The converter includes mermaid code sanitization for browser-side rendering:
+- Removes empty edge labels (`-->| |` → `-->`)
+- Quotes node labels with special characters using `["..."]` syntax
+- Quotes edge labels with special characters using `|"..."|` syntax
+- Separates preamble text from mermaid graph definitions
+
+### Input/Output
+
+- **Input**: `final_document.md` or `final_document_judge.md`
+- **Output**: `final_document_friendly.html` or `final_document_judge_friendly.html`
+
+---
+
+## 5. Step 4: Comparison Viewer & Corrections
+
+### Purpose
+
+A Flask-based web app that shows the original PDF and processed HTML side-by-side, with entity-level click-to-edit corrections.
+
+### Features
+
+- Synchronized page navigation between PDF and HTML
+- Entity-level click-to-edit (click badge → correction modal)
+- Two correction methods: manual editing or AI-assisted
+- Document-wide AI corrections (e.g., "fix all date formats")
+- Automatic HTML regeneration after every correction
+- Full audit trail in `corrections.yaml`
+
+### Correction Flow
+
 ```
+User clicks entity badge
+    ↓
+Modal opens with entity content
+    ↓
+Choose: [Manual Edit] or [AI-Assisted]
+    ↓
+Manual: Edit textarea        AI: Describe issue → OpenAI generates fix
+    ↓                            ↓
+Save correction
+    ↓
+Backend:
+  1. Save to corrections.yaml
+  2. Update source markdown (judge or regular)
+  3. Regenerate HTML
+    ↓
+Frontend: Reload HTML, highlight corrected entity
+```
+
+### Judge Mode vs Regular Mode
+
+When viewing judge HTML:
+- Corrections edit `final_document_judge.md` directly (in-place entity content replacement)
+- HTML regenerated from `final_document_judge.md`
+
+When viewing regular HTML:
+- Corrections edit individual entity files in `entities/`
+- `final_document.md` rebuilt from entity files
+- HTML regenerated from `final_document.md`
+
+### API Routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/entity/<id>` | Get entity content for editing |
+| POST | `/api/correct-with-ai` | AI-assisted correction |
+| POST | `/api/save-correction` | Save and regenerate HTML |
+| GET | `/api/corrections` | List all corrections |
+| POST | `/api/document-wide-correction` | Analyze document for batch fixes |
+| POST | `/api/apply-document-wide-corrections` | Apply batch corrections |
+
+---
+
+## 6. Pitfalls & Mitigations
+
+### Image Quality
+- **Problem**: Low-resolution or poorly scanned images lead to bad OCR
+- **Mitigation**: Confidence scores tracked in manifest; Docling image preprocessing
+
+### Complex Table Structures
+- **Problem**: Merged cells, nested headers
+- **Mitigation**: Docling extraction → validation → Vision API fallback
+
+### Diagram Complexity
+- **Problem**: 50+ node diagrams may not convert fully to Mermaid
+- **Mitigation**: Vision API does best-effort; processing notes indicate complexity
+
+### Entity Fragmentation
+- **Problem**: Extraction splits logically related content
+- **Mitigation**: LLM judge merges fragments; list detection in extraction step
+
+### API Rate Limits
+- **Problem**: Large documents with many images hit OpenAI limits
+- **Mitigation**: Retry with exponential backoff; sequential processing
+
+---
+
+## 7. Cost Estimates
+
+| Document Size | Pipeline | Judge | Corrections | Total |
+|--------------|----------|-------|-------------|-------|
+| Small (< 10 pages) | $0.10 - $0.50 | $0.05 - $0.10 | ~$0.03/each | ~$0.50 |
+| Medium (10-50 pages) | $0.50 - $2.00 | $0.10 - $0.30 | ~$0.03/each | ~$2.00 |
+| Large (> 50 pages) | $2.00+ | $0.30+ | ~$0.03/each | ~$3.00+ |
+
+Cost optimization:
+- Docling handles text and most tables for free
+- Vision API only called for images and failed tables
+- Judge uses a single API call per document
+- AI corrections ~$0.03-0.06 each (GPT-4o)
+
+---
+
+## 8. Dependencies
+
+**Python Packages:**
+- `docling>=2.0.0` — PDF extraction
+- `openai>=1.12.0` — Vision API, judge, AI corrections
+- `flask>=3.0.0` — Comparison viewer web server
+- `pyyaml>=6.0` — YAML processing
+- `markdown2>=2.4.0` — Markdown to HTML
+- `PyMuPDF>=1.23.0` — Table region extraction fallback
+- `python-dotenv` — Environment variable loading
+
+**Environment Variables:**
+- `OPENAI_API_KEY` — Required for Vision API, judge, and AI corrections
+
+---
 
 ## Summary
 
-This pipeline provides a **robust, production-ready** solution for converting unstructured PDFs into standardized formats optimized for LLM consumption and retrieval systems.
+This pipeline provides a robust solution for converting unstructured PDFs into standardized formats, with LLM-powered normalization and a human-in-the-loop verification system.
 
 **Key Strengths:**
-- ✅ No images in output - everything text-based
-- ✅ High-quality table extraction (Docling + Vision)
-- ✅ Intelligent image classification and conversion
-- ✅ Comprehensive metadata tracking
-- ✅ Modular entity files for granular access
-- ✅ LLM-friendly final document format
-
-**Best For:**
-- Technical documentation
-- Emergency procedures (as in your examples)
-- Contact directories
-- Process flowcharts
-- Mixed content documents
-
-**Next Steps:**
-1. Process your sample documents
-2. Review entity files and confidence scores
-3. Adjust configuration if needed
-4. Integrate into your retrieval system
+- No images in output — everything text-based
+- Intelligent extraction with multi-stage fallbacks
+- LLM judge for entity normalization and merge
+- User-friendly HTML output
+- Side-by-side comparison viewer with correction capabilities
+- Full audit trail for all corrections

@@ -1,296 +1,323 @@
-# Document Processing Pipeline
-
-A robust single-document processing pipeline that converts unstructured PDFs into standardized, LLM-friendly formats.
+# Document Processing Pipeline - Detailed Guide
 
 ## Overview
 
-This pipeline processes PDFs containing mixed content (text, tables, images, diagrams) and produces:
-- **Text** → Markdown
-- **Tables** → YAML
-- **Diagrams** → Mermaid
-- **Images with text** → Extracted text in Markdown
-- **Images with tables** → YAML
-- **Images with diagrams** → Mermaid
+This pipeline processes PDFs containing mixed content (text, tables, images, diagrams) and produces standardized, text-based output formats suitable for LLM consumption and human review.
+
+**Pipeline Flow:**
+```
+PDF → Extract → Judge → HTML → Review & Correct
+```
 
 ### Key Features
 
-✓ No images in output - everything converted to text-based formats
-✓ Each entity saved as individual file for modular access
-✓ Final assembled document maintains original order
-✓ Comprehensive metadata tracking
-✓ Vision AI classification and extraction
-✓ High-quality table and diagram conversion
+- No images in output — everything converted to text-based formats
+- Each entity saved as individual file for modular access
+- LLM judge normalizes and merges fragmented entities
+- User-friendly HTML output for review
+- Side-by-side comparison viewer with click-to-edit corrections
+- Full audit trail for all corrections
+
+---
+
+## Entity Types
+
+| Type | Description | Output Format | Source |
+|------|-------------|---------------|--------|
+| `TEXT` | Plain text blocks, headings, paragraphs | Markdown (`.md`) | Docling direct |
+| `TABLE` | Structured tables | YAML (`.yaml`) | Docling or Vision API |
+| `DIAGRAM` | Flowcharts, process diagrams | Mermaid (`.mmd`) | Vision API |
+| `IMAGE_TEXT` | Text extracted from images | Markdown (`.md`) | Vision API OCR |
+| `FORM` | Form structures, key-value pairs | YAML (`.yaml`) | Vision API |
+| `MIXED` | Multiple content types | Markdown (`.md`) | Vision API |
+
+---
 
 ## Output Structure
 
 ```
-output/
-├── entities/
-│   ├── E001_text.md          # Text blocks
-│   ├── E002_table.yaml        # Tables
-│   ├── E003_diagram.mmd       # Diagrams
-│   ├── E004_image_text.md     # Text from images
+outputs/<name>/
+├── entities/                              # Individual entity files
+│   ├── E001_EntityType.TEXT.md
+│   ├── E002_EntityType.TABLE.yaml
+│   ├── E003_EntityType.DIAGRAM.mmd
+│   ├── E004_EntityType.IMAGE_TEXT.md
 │   └── ...
-├── final_document.md          # All entities in order
-└── manifest.yaml              # Processing metadata
+├── final_document.md                      # All entities assembled in order
+├── final_document_judge.md                # Judge-normalized version
+├── final_document_friendly.html           # HTML from pipeline output
+├── final_document_judge_friendly.html     # HTML from judge output
+├── manifest.yaml                          # Processing metadata
+└── corrections.yaml                       # Correction audit trail
 ```
 
-## Entity Format
+---
 
-Each entity file includes YAML frontmatter with metadata:
+## Entity File Formats
 
-### Text Entity (`E001_text.md`)
+### Text Entity (`E001_EntityType.TEXT.md`)
+
 ```markdown
 ---
 entity_id: E001
 type: text
 source_page: 1
 position: 1
-original_bbox: [x1, y1, x2, y2]
+original_bbox: [72.0, 156.3, 523.2, 789.4]
 confidence: 1.0
 processing_notes: "Direct text extraction from Docling"
 ---
 
-## Emergency Reporting
+## Emergency Reporting Process
 
-The Master must report incidents involving but not limited to Collision,
-Grounding, Stranding, Fire, Explosion...
+Masters are reminded of their legal obligation to report incidents
+to Flag, Port and Coast State Authorities, after first advising
+the Managers.
 ```
 
-### Table Entity (`E002_table.yaml`)
+### Table Entity (`E002_EntityType.TABLE.yaml`)
+
 ```yaml
 # Metadata
 # entity_id: E002
 # type: table
 # source_page: 2
-# position: 2
+# confidence: 1.0
 
-vessel_contacts:
-  fleet_1:
-    - vessel_name: "DIMITRIS C"
-      flag: "MAL"
-      class: "DNV"
-      mmsi: "229665000"
-      telephone:
-        - type: "Master"
-          number: "+870771306882"
-        - type: "Bridge"
-          number: "+870771306881"
+fleet_1_vessels:
+  - vessel_name: "DIMITRIS C"
+    flag: "MAL"
+    classification: "DNV"
+    mmsi: "229665000"
+    contact:
+      master_phone: "+870771306882"
+      bridge_phone: "+870771306881"
       email: "vsl_123@danaos.com"
 ```
 
-### Diagram Entity (`E003_diagram.mmd`)
+### Diagram Entity (`E003_EntityType.DIAGRAM.mmd`)
+
 ```mermaid
-%% Metadata
 %% entity_id: E003
 %% type: diagram
+%% source_page: 3
+%% confidence: 0.92
 
 graph TD
-    A[Try to communicate] -->|Response received?| B{Evaluate Response}
-    B -->|Satisfied| C[After verifying no assistance needed,<br/>proceed on passage]
-    B -->|Not satisfied| D[Inform nearest RCC]
-    A -->|No response| D
-    D --> E[Try to obtain vessel information]
-    E --> F[Keep track of vessel until<br/>directed otherwise by RCC]
+    A[Observe vessel] --> B{Try to communicate}
+    B -->|Response received| C{Evaluate response}
+    B -->|No response| D[Obtain vessel information]
+    C -->|Satisfied| E[Proceed on passage]
+    C -->|Not satisfied| D
+    D --> F[Inform nearest RCC]
 ```
+
+---
 
 ## Final Document Format
 
-The assembled `final_document.md` combines all entities with markers:
+The assembled `final_document.md` combines all entities with HTML comment markers:
 
 ```markdown
 ---
 document_title: "Emergency Procedures Manual"
-total_entities: 45
+total_entities: 15
 processed_date: "2026-02-05 14:30:00"
 source_file: "emergency_manual.pdf"
 ---
 
 # Document: Emergency Procedures Manual
 
-<!-- Entity: E001 | Type: text | Page: 1 -->
+<!-- Entity: E001 | Type: EntityType.TEXT | Page: 1 -->
 ## Emergency Reporting
-...
+Masters are reminded of their legal obligation...
 
-<!-- Entity: E002 | Type: table | Page: 2 -->
+<!-- Entity: E002 | Type: EntityType.TABLE | Page: 2 -->
 ```yaml
-vessel_contacts:
-  fleet_1:
-    - vessel_name: "DIMITRIS C"
-...
+fleet_1_vessels:
+  - vessel_name: "DIMITRIS C"
+    flag: "MAL"
 ```
 
-<!-- Entity: E003 | Type: diagram | Page: 3 -->
+<!-- Entity: E003 | Type: EntityType.DIAGRAM | Page: 3 -->
 ```mermaid
 graph TD
-    A[Try to communicate] -->|Response?| B{Evaluate}
-...
+    A[Start] --> B[End]
 ```
 ```
 
-## Installation
+---
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+## Manifest Format
 
-# Set up OpenAI API key
-echo "OPENAI_API_KEY=your-key-here" > .env
+```yaml
+source_document: "document.pdf"
+processed_date: "2026-02-05T14:45:32.123456"
+total_entities: 15
+
+entity_type_counts:
+  text: 8
+  table: 4
+  diagram: 2
+  image_text: 1
+
+entities:
+  - id: E001
+    type: text
+    page: 1
+    position: 1
+    confidence: 1.0
+    extraction_method: "docling"
+    file: "entities/E001_EntityType.TEXT.md"
+
+  - id: E002
+    type: table
+    page: 2
+    position: 2
+    confidence: 1.0
+    extraction_method: "docling"
+    file: "entities/E002_EntityType.TABLE.yaml"
+
+  - id: E003
+    type: diagram
+    page: 3
+    position: 3
+    confidence: 0.92
+    extraction_method: "vision_api"
+    file: "entities/E003_EntityType.DIAGRAM.mmd"
 ```
+
+---
+
+## Judge Document
+
+The judge output (`final_document_judge.md`) has the same format as `final_document.md` but with entities normalized:
+
+- Fragmented list items merged into single entities
+- Split paragraphs rejoined
+- Repeating page headers combined (one entity per page)
+- Multi-part headers merged
+- OCR artifacts corrected
+
+The judge appends a `## Change Log` section at the end documenting all changes made.
+
+---
+
+## Corrections Format
+
+```yaml
+corrections:
+  E015:
+    correction_type: manual
+    timestamp: "2026-02-05T14:30:00"
+    reason: "Fixed unit conversion error"
+    original_content: |
+      Viscosity at 50C: Max 10.0 mm2/s
+    corrected_content: |
+      Viscosity at 50C: Max 10.0 cSt
+
+  E022:
+    correction_type: ai
+    timestamp: "2026-02-05T14:35:00"
+    reason: "LLM correction"
+    user_prompt: "The responsible party should be 'Chief Engineer' not 'Master'"
+    original_content: |
+      actions:
+        - description: "Check fuel quality"
+          responsible: [Master]
+    corrected_content: |
+      actions:
+        - description: "Check fuel quality"
+          responsible: [Chief Engineer]
+```
+
+---
 
 ## Usage
 
-### Basic Usage
+### Step 1: Extract
 
 ```bash
-python run_pipeline.py path/to/document.pdf
+uv run python run_pipeline.py document.pdf
+uv run python run_pipeline.py document.pdf --pages 1-10
+uv run python run_pipeline.py document.pdf --output mydir/
 ```
 
-### Specify Output Directory
+### Step 2: Judge
 
 ```bash
-python run_pipeline.py document.pdf custom_output/
+uv run python run_judge.py outputs/<name>/
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini
 ```
 
-### Programmatic Usage
+### Step 3: Convert to HTML
 
-```python
-from document_pipeline import DocumentPipeline
-
-# Initialize pipeline
-pipeline = DocumentPipeline(openai_api_key="your-key")
-
-# Process document
-final_doc = pipeline.process_document(
-    pdf_path="document.pdf",
-    output_dir="output"
-)
-
-print(f"Processed document saved to: {final_doc}")
+```bash
+uv run python convert_to_friendly.py outputs/<name>/final_document_judge.md
+uv run python convert_to_friendly.py outputs/<name>/final_document.md
 ```
 
-## Pipeline Architecture
+### Step 4: Review & Correct
 
-### 1. PDF Extraction (Docling)
-- Extracts text, tables, and images
-- Maintains positional information
-- OCR for scanned content
-- High-quality table structure recognition
+```bash
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html
+uv run python compare_viewer.py document.pdf outputs/<name>/final_document_judge_friendly.html --port 8080
+```
 
-### 2. Entity Classification (OpenAI Vision API)
-For each image/picture element:
-- Classifies content type (text, table, diagram)
-- Determines extraction strategy
-- Provides confidence scores
-
-### 3. Content Conversion
-- **Text**: Clean markdown formatting
-- **Tables**: Structured YAML with meaningful keys
-- **Diagrams**: Mermaid flowchart syntax
-- **Mixed**: Best-effort extraction with notes
-
-### 4. Output Generation
-- Individual entity files with metadata
-- Final assembled document
-- Processing manifest
+---
 
 ## Configuration
 
-Edit `pipeline_config.py` to customize:
+Edit `src/pipeline/pipeline_config.py`:
 
 ```python
-class PipelineConfig:
-    # Vision model
-    VISION_MODEL = "gpt-4o"
-    VISION_MAX_TOKENS = 4096
-
-    # Output paths
-    OUTPUT_DIR = "output"
-    ENTITIES_DIR = "output/entities"
-
-    # Docling options
-    DOCLING_OPTIONS = {
-        "do_table_structure": True,
-        "do_ocr": True,
-        ...
-    }
+VISION_MODEL = "gpt-4o"        # or "gpt-4o-mini" for lower cost
+VISION_MAX_TOKENS = 4096        # max tokens for extraction
 ```
 
-## Entity Types
+Judge model:
+```bash
+uv run python run_judge.py outputs/<name>/ --model gpt-4o       # best quality
+uv run python run_judge.py outputs/<name>/ --model gpt-4o-mini   # faster, cheaper
+```
 
-| Type | Description | Output Format | Source |
-|------|-------------|---------------|--------|
-| `text` | Plain text blocks | Markdown | Docling direct |
-| `table` | Structured tables | YAML | Docling or Vision |
-| `diagram` | Flowcharts, diagrams | Mermaid | Vision API |
-| `image_text` | Text from images | Markdown | Vision API OCR |
-| `form` | Form structures | YAML | Vision API |
-| `mixed` | Multiple content types | Markdown | Vision API |
+---
 
-## Troubleshooting
+## Extraction Details
 
-### "OpenAI API key required"
-- Ensure `.env` file exists with `OPENAI_API_KEY=...`
-- Or set environment variable: `export OPENAI_API_KEY=your-key`
+### Table Extraction
 
-### Poor table extraction
-- Tables from images use Vision API - quality depends on image clarity
-- Native PDF tables (extracted by Docling) are more accurate
-- Check `manifest.yaml` for confidence scores
+Tables use a two-stage approach:
+1. **Primary**: Docling native extraction → convert to YAML → validate structure
+2. **Fallback**: If validation fails → extract table region with PyMuPDF → Vision API
 
-### Diagram conversion issues
-- Complex diagrams may not convert perfectly to Mermaid
-- Check entity file for conversion notes
-- Manual review recommended for critical diagrams
+Validation checks:
+- Non-empty markdown output
+- Valid YAML structure
+- At least 1 data row
+- At least 2 columns
 
-### Large documents
-- Pipeline processes entities sequentially
-- Vision API calls may take time for image-heavy docs
-- Monitor progress via console output
+### Image Classification
 
-## Best Practices
+For each image in the PDF, the Vision API:
+1. Classifies content type (text, table, diagram, mixed)
+2. Extracts content in the appropriate format
+3. Handles mixed content (e.g., diagram with surrounding text)
 
-1. **Image Quality**: Higher resolution images → better extraction
-2. **Table Structure**: Clean, grid-based tables work best
-3. **Diagram Clarity**: Simple, well-labeled diagrams convert better
-4. **Review Output**: Always review `manifest.yaml` for confidence scores
-5. **Iterative Refinement**: Use entity files to identify issues
+### List Grouping
 
-## API Costs
+The extraction step detects consecutive list items and merges them:
+- Detects bullet markers (-, *, bullet chars)
+- Detects numbered lists (1., 2., etc.)
+- Groups by indentation and vertical proximity
+- Outputs as single markdown list entity
 
-Approximate OpenAI API costs per document:
-- Small doc (< 10 images): $0.10 - $0.50
-- Medium doc (10-50 images): $0.50 - $2.00
-- Large doc (> 50 images): $2.00+
+---
 
-Using `gpt-4o` model (optimal quality/cost balance).
+## Cost Reference
 
-## Limitations
-
-- Does not preserve exact visual layout
-- Complex multi-column layouts may lose structure
-- Handwritten text recognition limited
-- Very complex diagrams may not convert fully
-- Non-English text extraction varies by language
-
-## Future Enhancements
-
-Potential improvements:
-- [ ] Batch processing support
-- [ ] Custom classification models
-- [ ] Layout preservation options
-- [ ] Interactive review UI
-- [ ] Parallel processing for speed
-- [ ] Custom entity type plugins
-
-## Examples
-
-See `output/` directory after processing the sample emergency manual for complete examples.
-
-## Support
-
-For issues or questions:
-1. Check `manifest.yaml` for processing details
-2. Review entity files for conversion quality
-3. Examine console output for errors
-4. Check API key and permissions
+| Document Size | Pipeline | Judge | Per Correction | Total |
+|--------------|----------|-------|----------------|-------|
+| Small (< 10 pages) | $0.10 - $0.50 | $0.05 - $0.10 | ~$0.03 | ~$0.50 |
+| Medium (10-50 pages) | $0.50 - $2.00 | $0.10 - $0.30 | ~$0.03 | ~$2.00 |
+| Large (> 50 pages) | $2.00+ | $0.30+ | ~$0.03 | ~$3.00+ |
