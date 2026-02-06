@@ -236,6 +236,11 @@ class EntityProcessor:
                 formatted_lines.append("")
                 continue
 
+            # Skip formatting for lines that already have list markers or markdown formatting
+            if line.startswith(('-', '*', '•', '◦', '▪', '→', '#', '  ')):
+                formatted_lines.append(line)
+                continue
+
             # Detect headings (lines that are all caps or end with :)
             if line.isupper() and len(line.split()) <= 8:
                 formatted_lines.append(f"## {line.title()}")

@@ -37,8 +37,9 @@ class DocumentComparator {
                 this.loadHTML()
             ]);
             this.setupEventListeners();
-            this.correctionModal = new CorrectionModal(this);  // NEW: Initialize CorrectionModal
-            this.setupEntityClickHandlers();  // NEW: Set up entity click handlers
+            this.correctionModal = new CorrectionModal(this);  // Initialize CorrectionModal
+            documentAI = new DocumentAIAssistant(this);  // Initialize Document-Wide AI Assistant
+            this.setupEntityClickHandlers();  // Set up entity click handlers
             await this.renderPage(this.currentPage);
         } catch (error) {
             console.error('Initialization error:', error);

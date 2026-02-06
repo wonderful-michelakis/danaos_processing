@@ -1,0 +1,40 @@
+# Metadata
+# entity_id: E021
+# type: table
+# source_page: 2
+# position: 21
+# confidence: 1.0
+# corrected: true
+# correction_timestamp: 2026-02-05T19:19:35.045771
+
+table:
+- Controlled Document: POLICY MANUAL
+  Approval: Management
+- Controlled Document: PROCEDURES 2
+  Approval: Management
+- Controlled Document: EMERGENCY PROCEDURES MANUAL
+  Approval: Management
+- Controlled Document: FLEET INSTRUCTIONS MANUAL
+  Approval: Management
+- Controlled Document: ECDIS MANAGEMENT MANUAL
+  Approval: SQE Director
+- Controlled Document: VECTOR MANAGEMENT PLAN
+  Approval: SQE Director
+- Controlled Document: SOPEP
+  Approval: Flag Administration or Classification Society
+- Controlled Document: SOLAS FIRE TRAINING MANUAL
+  Approval: Management
+- Controlled Document: GARBAGE MANAGEMENT PLAN MANUAL
+  Approval: Management
+- Controlled Document: BALLAST WATER MANAGEMENT PLAN
+  Approval: Management or Classification Society / Flag
+- Controlled Document: CYBER SECURITY MANUAL
+  Approval: Management
+- Controlled Document: VECTOR MANAGEMENT PLAN
+  Approval: SQE Director
+- Controlled Document: ECDIS MANAGEMENT MANUAL
+  Approval: SQE Director
+- Controlled Document: INVENTORY OF HAZARDOUS MATERIAL
+  Approval: SQE Director /Tech Director
+- Controlled Document: MOORING SYSTEM MANAGEMENT PLAN (MSMP)
+  Approval: SQE Director /Tech Director

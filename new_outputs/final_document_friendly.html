@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Header */
+        .document-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .document-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .document-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Main content */
+        .document-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Page sections */
+        .page-section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #dee2e6;
+        }
+
+        .page-section:last-child {
+            border-bottom: none;
+        }
+
+        .page-header {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        /* Entity sections */
+        .entity {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .entity-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #6c757d;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .table-section-header {
+            margin: 20px 0 10px 0;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .table-note {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .data-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Parameter tables */
+        .parameters-table .param-name {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .parameters-table .param-unit {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .parameters-table .param-limit {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .diagram-caption {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+            text-align: left;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .diagram-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+
+        .diagram-fallback {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+
+        .diagram-fallback details {
+            margin-top: 15px;
+        }
+
+        .diagram-fallback summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .diagram-fallback pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        /* Text content */
+        .text-content {
+            line-height: 1.8;
+        }
+
+        .text-content h1,
+        .text-content h2,
+        .text-content h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .text-content h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .text-content h3 {
+            font-size: 1.35rem;
+            color: #495057;
+        }
+
+        .text-content p {
+            margin-bottom: 15px;
+        }
+
+        .text-content ul,
+        .text-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .text-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Error states */
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .empty-table {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .document-footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .document-header {
+                background: #667eea;
+                color: white;
+            }
+
+            .entity {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+
+            .entity-badge {
+                background: #495057;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .document-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .document-meta {
+                font-size: 0.85rem;
+            }
+
+            .entity {
+                padding: 20px;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 10px;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <header class="document-header">
+        <h1></h1>
+        <div class="document-meta">
+            <span class="meta-item">Source: Unknown</span>
+            <span class="meta-item">Processed: Unknown</span>
+            <span class="meta-item">Total Entities: 92</span>
+        </div>
+    </header>
+
+    <main class="document-content">
+        <div class="page-section" data-page="1">
+  <div class="page-header">Page 1</div>
+  <section class="entity" data-entity="E001" data-page="1">
+    <div class="entity-badge">E001</div>
+    <div class="text-content" id="E001">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## Danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E002" data-page="1">
+    <div class="entity-badge">E002</div>
+    <div class="text-content" id="E002">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E003" data-page="1">
+    <div class="entity-badge">E003</div>
+    <div class="text-content" id="E003">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E004" data-page="1">
+    <div class="entity-badge">E004</div>
+    <div class="text-content" id="E004">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E005" data-page="1">
+    <div class="entity-badge">E005</div>
+    <div class="text-content" id="E005">
+    <h2>Chapter :  1 Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E006" data-page="1">
+    <div class="entity-badge">E006</div>
+    <div class="text-content" id="E006">
+    <p>1.1     DOCUMENT CONTROL PROCEDURE (Last Updated 04/12/2024) (Revision 15)</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E007" data-page="1">
+    <div class="entity-badge">E007</div>
+    <div class="text-content" id="E007">
+    <h2>1.1.1   Purpose</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E008" data-page="1">
+    <div class="entity-badge">E008</div>
+    <div class="text-content" id="E008">
+    <p>The purpose of this procedure is to define how controlled documents are:<br />
+    - approved and authorised for issue<br />
+    - distributed<br />
+    - reviewed.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E009" data-page="1">
+    <div class="entity-badge">E009</div>
+    <div class="text-content" id="E009">
+    <h2>1.2 Application</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E010" data-page="1">
+    <div class="entity-badge">E010</div>
+    <div class="text-content" id="E010">
+    <p>This procedure applies to all documents used to define or referred to by the DANAOS SAFETY MANAGEMENT SYSTEM. All such documents are considered as controlled documents. These documents are the following:<br />
+    * Policy Manual<br />
+    * Describes the company's 'Safety &amp; Environmental Protection Policy' &amp; provides the framework upon which the company's 'Safety Management System' is established.<br />
+    * Procedures<br />
+    * Describes the basic Company Procedures covering shipboard operations.<br />
+    * Emergency Procedures Manual<br />
+    * Fleet Instructions Manual<br />
+    * SOPEP<br />
+    * SOLAS FIRE TRAINING MANUAL<br />
+    * GARBAGE MANAGEMENT PLAN MANUAL<br />
+    * BALLAST WATER MANAGEMENT PLAN<br />
+    * CYBER SECURITY MANUAL<br />
+    * VECTOR MANAGEMENT PLAN<br />
+    * ECDIS MANAGEMENT MANUAL<br />
+    * INVENTORY OF HAZARDOUS MATERIAL<br />
+    * MOORING SYSTEM MANAGEMENT PLAN (MSMP)</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E011" data-page="1">
+    <div class="entity-badge">E011</div>
+    <div class="text-content" id="E011">
+    <p>Furthermore, a number of reference publications (vessel &amp; office library) and all Records (Forms) &amp; Checklists are also controlled through this procedure.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E012" data-page="1">
+    <div class="entity-badge">E012</div>
+    <div class="text-content" id="E012">
+    <h2>1.3 Procedure</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E013" data-page="1">
+    <div class="entity-badge">E013</div>
+    <div class="text-content" id="E013">
+    <h2>1.3.1  Approval Of Controlled Documents</h2>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="2">
+  <div class="page-header">Page 2</div>
+  <section class="entity" data-entity="E014" data-page="2">
+    <div class="entity-badge">E014</div>
+    <div class="text-content" id="E014">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## Danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E015" data-page="2">
+    <div class="entity-badge">E015</div>
+    <div class="text-content" id="E015">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E016" data-page="2">
+    <div class="entity-badge">E016</div>
+    <div class="text-content" id="E016">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E017" data-page="2">
+    <div class="entity-badge">E017</div>
+    <div class="text-content" id="E017">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E018" data-page="2">
+    <div class="entity-badge">E018</div>
+    <div class="text-content" id="E018">
+    <h2>Chapter :  1</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E019" data-page="2">
+    <div class="entity-badge">E019</div>
+    <div class="text-content" id="E019">
+    <h2>Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E020" data-page="2">
+    <div class="entity-badge">E020</div>
+    <div class="text-content" id="E020">
+    <p>All Controlled Documents are approved prior to their issue and use according to the below mentioned table.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E021" data-page="2">
+    <div class="entity-badge">E021</div>
+    <div class="table-container" id="E021">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Controlled Document</th>
+            <th>Approval</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>POLICY MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>PROCEDURES 2</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>EMERGENCY PROCEDURES MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>FLEET INSTRUCTIONS MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>ECDIS MANAGEMENT MANUAL</td>
+            <td>SQE Director</td>
+          </tr>
+          <tr>
+            <td>VECTOR MANAGEMENT PLAN</td>
+            <td>SQE Director</td>
+          </tr>
+          <tr>
+            <td>SOPEP</td>
+            <td>Flag Administration or Classification Society</td>
+          </tr>
+          <tr>
+            <td>SOLAS FIRE TRAINING MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>GARBAGE MANAGEMENT PLAN MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>BALLAST WATER MANAGEMENT PLAN</td>
+            <td>Management or Classification Society / Flag</td>
+          </tr>
+          <tr>
+            <td>CYBER SECURITY MANUAL</td>
+            <td>Management</td>
+          </tr>
+          <tr>
+            <td>VECTOR MANAGEMENT PLAN</td>
+            <td>SQE Director</td>
+          </tr>
+          <tr>
+            <td>ECDIS MANAGEMENT MANUAL</td>
+            <td>SQE Director</td>
+          </tr>
+          <tr>
+            <td>INVENTORY OF HAZARDOUS MATERIAL</td>
+            <td>SQE Director /Tech Director</td>
+          </tr>
+          <tr>
+            <td>MOORING SYSTEM MANAGEMENT PLAN (MSMP)</td>
+            <td>SQE Director /Tech Director</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E022" data-page="2">
+    <div class="entity-badge">E022</div>
+    <div class="text-content" id="E022">
+    <h2>1.3.2  Distribution</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E023" data-page="2">
+    <div class="entity-badge">E023</div>
+    <div class="text-content" id="E023">
+    <p>All Controlled Documents shall be distributed to Head Office and to the vessels according to their contents and intended use as per Distribution Table below.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E024" data-page="2">
+    <div class="entity-badge">E024</div>
+    <div class="text-content" id="E024">
+    <p>Distribution status of all Controlled Documents is updated by the SQE Director.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E025" data-page="2">
+    <div class="entity-badge">E025</div>
+    <div class="text-content" id="E025">
+    <p>Each controlled document exists in a "master copy" which is kept by the SQE Director with the necessary approval evidence.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E026" data-page="2">
+    <div class="entity-badge">E026</div>
+    <div class="text-content" id="E026">
+    <p>All  effective  Controlled  Documents  can  be  accessed  by  all  Head  Office  staff  through electronic  copies  provided  by  SQE  department (see  Distribution  Table).  Regarding reference documentation, this is accessed through the Office library (established in the SQE department)</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E027" data-page="2">
+    <div class="entity-badge">E027</div>
+    <div class="text-content" id="E027">
+    <p>Regarding the Office library, a booking out system is established which identifies who has withdrawn a publication, date of withdrawal and date of return.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E028" data-page="2">
+    <div class="entity-badge">E028</div>
+    <div class="text-content" id="E028">
+    <p>The SQE Coordinator is responsible to distribute Controlled Documents to the Head Office and the vessels.  All Controlled Documents distributed to the vessels will be accompanied by</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="3">
+  <div class="page-header">Page 3</div>
+  <section class="entity" data-entity="E029" data-page="3">
+    <div class="entity-badge">E029</div>
+    <div class="text-content" id="E029">
+    <pre><code>## danaos
+    
+    ### Safety Management System
+    </code></pre>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E030" data-page="3">
+    <div class="entity-badge">E030</div>
+    <div class="text-content" id="E030">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E031" data-page="3">
+    <div class="entity-badge">E031</div>
+    <div class="text-content" id="E031">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E032" data-page="3">
+    <div class="entity-badge">E032</div>
+    <div class="text-content" id="E032">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E033" data-page="3">
+    <div class="entity-badge">E033</div>
+    <div class="text-content" id="E033">
+    <h2>Chapter :  1</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E034" data-page="3">
+    <div class="entity-badge">E034</div>
+    <div class="text-content" id="E034">
+    <h2>Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E035" data-page="3">
+    <div class="entity-badge">E035</div>
+    <div class="text-content" id="E035">
+    <p>the Document Transmittal Form (DTF).  The DTF will be signed by the Master and returned to the Head Office.  A copy of the DTF is kept by the Master on board.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E036" data-page="3">
+    <div class="entity-badge">E036</div>
+    <div class="text-content" id="E036">
+    <h2>1.3.3  Reviews &amp; Amendments To Controlled Documents</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E037" data-page="3">
+    <div class="entity-badge">E037</div>
+    <div class="text-content" id="E037">
+    <p>Reviews  to  controlled  documents  are  approved  by  the  same  persons  as  for  their  original issue (section 3.1).</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E038" data-page="3">
+    <div class="entity-badge">E038</div>
+    <div class="text-content" id="E038">
+    <p>Necessity of revision derives from Management reviews, any CHANGE REQUEST form issued or  Dept.  Director  requirement  for  amendments  to  procedures  affecting  his  Dept.  Any amendment is screened for ISM, ISO 9001, ISO 14001 and ISO 50001 compliance by the SQE Director and thereafter is forwarded to the Management for approval. Once approval is granted,  the  SQE  coordinator  updates  ISM  administrator  with  the  new  revision  and distributes as per below distribution list.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E039" data-page="3">
+    <div class="entity-badge">E039</div>
+    <div class="text-content" id="E039">
+    <p>Procedures shall be revised &amp; issued to the next revision number as a whole document. As far as the rest of the Controlled Documents is concerned, revisions shall be carried out on a section by section basis. Amendments will be in Blue and italics font style.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E040" data-page="3">
+    <div class="entity-badge">E040</div>
+    <div class="text-content" id="E040">
+    <p>Whenever there is an amendment to controlled documents, all obsolete version(s) will be removed  from  areas  of  work  to  prevent  the  unintended  use.    DSMS  documentation (Emergency  Procedures  Manual,  Policy  Manual,  Procedures  Manual,  Fleet  Instructions Manual)  will  be  updated  through  ISM  Administrator  and  a  hard  copy  will  also  remain  on board in Ship Office and Bridge in accordance with Filing System (P21). The SQE Coordinator is also responsible to forward amended Controlled Document to the vessels, accompanied by the DTF, which will be signed by the Master and returned to Head Office (one copy kept on board).  The Master is responsible to remove the obsolete documents from the area of work, keeping them (marked Superseded) in his Superseded Document file.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E041" data-page="3">
+    <div class="entity-badge">E041</div>
+    <div class="text-content" id="E041">
+    <p>Controlled documents are kept within Company ISM administrator and updated through this system. For reference purposes, through the Administrator tools, the list of updated versions are  printed  and  sent  onboard,  originally,  and  thereafter  whenever  there  is  a  change  of documentation involved.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E042" data-page="3">
+    <div class="entity-badge">E042</div>
+    <div class="text-content" id="E042">
+    <h2>1.3.4  Reference Publication</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E043" data-page="3">
+    <div class="entity-badge">E043</div>
+    <div class="text-content" id="E043">
+    <p>In  support  of  Controlled  Documents,  the  Company  supplies  reference  publication  (e.g. SOLAS,  MARPOL,  STCW,  etc.)  in  their  latest  edition  for  the  instruction  and  guidance  of Masters, Officers, crew and shore based staff.  Such documents are kept in the Head Office library  and  in  a  library  established  on  board  each  vessel.    A  register  of  such  reference documentation is kept, indicating also their latest edition.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E044" data-page="3">
+    <div class="entity-badge">E044</div>
+    <div class="text-content" id="E044">
+    <p>Documents included in the vessels and office library are listed in the 'Library List'.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E045" data-page="3">
+    <div class="entity-badge">E045</div>
+    <div class="text-content" id="E045">
+    <p>The SQE Coordinator is responsible to ensure that all reference publications are updated to the latest edition ashore and Operations Dept. is responsible for updating the vessel 'Library List'.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E046" data-page="3">
+    <div class="entity-badge">E046</div>
+    <div class="text-content" id="E046">
+    <p>The Master is responsible to ensure that the on board Library List is kept updated at all times and keeps Danaos Ops advised in case of any requirement.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E047" data-page="3">
+    <div class="entity-badge">E047</div>
+    <div class="text-content" id="E047">
+    <h2>1.3.5  Control Of Documents Ashore And Onboard</h2>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="4">
+  <div class="page-header">Page 4</div>
+  <section class="entity" data-entity="E048" data-page="4">
+    <div class="entity-badge">E048</div>
+    <div class="text-content" id="E048">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E049" data-page="4">
+    <div class="entity-badge">E049</div>
+    <div class="text-content" id="E049">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E050" data-page="4">
+    <div class="entity-badge">E050</div>
+    <div class="text-content" id="E050">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E051" data-page="4">
+    <div class="entity-badge">E051</div>
+    <div class="text-content" id="E051">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E052" data-page="4">
+    <div class="entity-badge">E052</div>
+    <div class="text-content" id="E052">
+    <h2>Chapter :  1 Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E053" data-page="4">
+    <div class="entity-badge">E053</div>
+    <div class="text-content" id="E053">
+    <p>The SQE Coordinator is responsible to monitor and update all Records (forms) and checklists used in the DANAOS SAFETY MANAGEMENT SYSTEM. In case of any amendments, the SQE Coordinator  is  responsible  to  ensure  that  the  'List  of  Forms'  is  updated  and  the  relevant personnel in the office and onboard are notified and supplied with the required records.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E054" data-page="4">
+    <div class="entity-badge">E054</div>
+    <div class="text-content" id="E054">
+    <p>D Do oc cu um me en nt t   D Di is st tr ri i b bu ut ti io on n   T Ta ab bl le e</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E055" data-page="4">
+    <div class="entity-badge">E055</div>
+    <div class="table-container" id="E055">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>D Di is st tr ri ib bu ut ti io on n</th>
+            <th>P Po ol li ic cy y M Ma an nu ua al l</th>
+            <th>P Pr ro oc ce ed du ur re es M Ma an nu ua al l</th>
+            <th>s F F. .I I. .M M. .</th>
+            <th>E E. .P P. .M M. .</th>
+            <th>S SO OP PE EP P</th>
+            <th>G G. .M M. .P P. .</th>
+            <th>C CY YB BE ER R S SE EC CU UR RI IT TY Y M MA AN NU UA AL L</th>
+            <th>I IH HS S</th>
+            <th>S SO OL LA AS S & & F Fi ir re e f fi ig gh ht ti in ng g T Tr ra ai in ni in ng g M Ma an nu ua al ls s</th>
+            <th>S SE EE EM MP</th>
+            <th>P E EC CD DI IS S</th>
+            <th>Vector Mgnt Plan</th>
+            <th>B BW WM MP P F Fo or rm ms s</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+            <td>D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="5">
+  <div class="page-header">Page 5</div>
+  <section class="entity" data-entity="E056" data-page="5">
+    <div class="entity-badge">E056</div>
+    <div class="text-content" id="E056">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E057" data-page="5">
+    <div class="entity-badge">E057</div>
+    <div class="text-content" id="E057">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E058" data-page="5">
+    <div class="entity-badge">E058</div>
+    <div class="text-content" id="E058">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E059" data-page="5">
+    <div class="entity-badge">E059</div>
+    <div class="text-content" id="E059">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E060" data-page="5">
+    <div class="entity-badge">E060</div>
+    <div class="text-content" id="E060">
+    <h2>Chapter :  1</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E061" data-page="5">
+    <div class="entity-badge">E061</div>
+    <div class="text-content" id="E061">
+    <h2>Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E062" data-page="5">
+    <div class="entity-badge">E062</div>
+    <div class="table-container" id="E062">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Messrooms</th>
+            <th> x 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Recreation Rooms (when applicable)</td>
+            <td> x 2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E063" data-page="5">
+    <div class="entity-badge">E063</div>
+    <div class="text-content" id="E063">
+    <h2>1.3.6  Control Of Records</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E064" data-page="5">
+    <div class="entity-badge">E064</div>
+    <div class="text-content" id="E064">
+    <p>Records  shall  be  legible,  readily  identifiable  and  retrievable.  Details  for  their  storage,  and retention is stated in Procedure 21.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E065" data-page="5">
+    <div class="entity-badge">E065</div>
+    <div class="text-content" id="E065">
+    <h2>1.4 References</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E066" data-page="5">
+    <div class="entity-badge">E066</div>
+    <div class="text-content" id="E066">
+    <h2>N/A</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E067" data-page="5">
+    <div class="entity-badge">E067</div>
+    <div class="text-content" id="E067">
+    <h2>1.5 Definitions</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E068" data-page="5">
+    <div class="entity-badge">E068</div>
+    <div class="text-content" id="E068">
+    <p>DTF: Document Transmittal Form</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E069" data-page="5">
+    <div class="entity-badge">E069</div>
+    <div class="text-content" id="E069">
+    <p>SOPEP: Shipboard Oil Pollution Emergency Plan.</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E070" data-page="5">
+    <div class="entity-badge">E070</div>
+    <div class="text-content" id="E070">
+    <p>FIM: Fleet Instructions Manual</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E071" data-page="5">
+    <div class="entity-badge">E071</div>
+    <div class="text-content" id="E071">
+    <p>EPM: Emergency Procedures Manual</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E072" data-page="5">
+    <div class="entity-badge">E072</div>
+    <div class="text-content" id="E072">
+    <p>GMP: Garbage Management Plan</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E073" data-page="5">
+    <div class="entity-badge">E073</div>
+    <div class="text-content" id="E073">
+    <p>B.W.M.P.: Ballast Water Management Plan</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E074" data-page="5">
+    <div class="entity-badge">E074</div>
+    <div class="text-content" id="E074">
+    <h2>1.6 Records</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E075" data-page="5">
+    <div class="entity-badge">E075</div>
+    <div class="text-content" id="E075">
+    <h2> Dtf</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E076" data-page="5">
+    <div class="entity-badge">E076</div>
+    <div class="text-content" id="E076">
+    <p> Library List (onboard)</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E077" data-page="5">
+    <div class="entity-badge">E077</div>
+    <div class="text-content" id="E077">
+    <p> List of Publications (ashore)</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="6">
+  <div class="page-header">Page 6</div>
+  <section class="entity" data-entity="E078" data-page="6">
+    <div class="entity-badge">E078</div>
+    <div class="text-content" id="E078">
+    <div class="codehilite">
+    <pre><span></span><code><span class="gu">## danaos</span>
+    
+    <span class="gu">### Safety Management System</span>
+    </code></pre>
+    </div>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E079" data-page="6">
+    <div class="entity-badge">E079</div>
+    <div class="text-content" id="E079">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E080" data-page="6">
+    <div class="entity-badge">E080</div>
+    <div class="text-content" id="E080">
+    <h2>Chapter :  1</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E081" data-page="6">
+    <div class="entity-badge">E081</div>
+    <div class="text-content" id="E081">
+    <h2>Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E082" data-page="6">
+    <div class="entity-badge">E082</div>
+    <div class="text-content" id="E082">
+    <h2>Amendment Details</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E083" data-page="6">
+    <div class="entity-badge">E083</div>
+    <div class="table-container" id="E083">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SECTION</th>
+            <th>EFFECTIVE DATE</th>
+            <th>AMENDMENT DETAIL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Para 1.3.3</td>
+            <td>30-06-04</td>
+            <td>Para 3.3 amendment 'controlled Documentation List'</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>'Safety & Quality' replaced with 'Safety, Quality & Environmental'</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>Cover page was added</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>Para 1.2 amended</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>Para 1.3.1 amended</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>Para 1.3.3 amended</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>01-03-07</td>
+            <td>Para 1.3.5 amended ' 'D Do oc cu um me en nt t D Di is st tr ri ib bu ut ti io on n T Ta ab bl le e' '</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.3</td>
+            <td>26-09-07</td>
+            <td>'Change Request Form' added</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.2</td>
+            <td>12-12-07</td>
+            <td>2 nd paragraph was amended</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.3</td>
+            <td>12-12-07</td>
+            <td>3 rd and 4 th paragraph was amended</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>12-12-07</td>
+            <td>Document Distribution Table was amended</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>20-03-08</td>
+            <td>Document Distribution Table was amended</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>08-05-09</td>
+            <td>Document Distribution Table was amended</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.3</td>
+            <td>04-06-15</td>
+            <td>Reference to 'ISO 9001' and 'ISO 50001' compliance was made. 4 th para: '…to prevent the unintended use' was inserted</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>04-06-15</td>
+            <td>T Th he e f fo ol ll lo ow wi in ng g w we er re e i in ns se er rt te ed d i in n ' 'D Do oc cu um me en nt t D Di is st tr ri ib bu ut ti io on n T Ta ab bl le e' ': : ( (e e- -c co op py y e eq qu ua al ls s I In nt tr ra an ne et t) ) O On nb bo oa ar rd d ( (D De es sk kt to op ps s) )</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.6</td>
+            <td>04-06-15</td>
+            <td>Brand new para 'Control of records' was inserted.</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.1</td>
+            <td>02-08-17</td>
+            <td>ECDIS was inserted in Control Documents Table</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>02-08-17</td>
+            <td>ECDIS was inserted in Document Distribution Table</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.1</td>
+            <td>04-12-19</td>
+            <td>Vector Mgnt Plan was inserted in Control Documents Table</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>04-12-19</td>
+            <td>Vector Mgnt Plan was inserted in Document Distribution Table</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>23-04-20</td>
+            <td>Document Distribution Table was updated</td>
+          </tr>
+          <tr>
+            <td>Para 1.2, 1.3.1, 1.3.5</td>
+            <td>30-12-20</td>
+            <td>Amendments ref. to Cyber Security, ECDIS and IHS were made.</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.5</td>
+            <td>07-10-22</td>
+            <td>Document Distribution Table was updated (HR+T and Manning Agencies were inserted)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E084" data-page="6">
+    <div class="entity-badge">E084</div>
+    <div class="text-content" id="E084">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E085" data-page="6">
+    <div class="entity-badge">E085</div>
+    <div class="text-content" id="E085">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+</div>
+
+<div class="page-section" data-page="7">
+  <div class="page-header">Page 7</div>
+  <section class="entity" data-entity="E086" data-page="7">
+    <div class="entity-badge">E086</div>
+    <div class="text-content" id="E086">
+    <h2>Danaos</h2>
+    
+    <h3>Safety Management System</h3>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E087" data-page="7">
+    <div class="entity-badge">E087</div>
+    <div class="text-content" id="E087">
+    <p>Approver: MANAGEMENT</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E088" data-page="7">
+    <div class="entity-badge">E088</div>
+    <div class="text-content" id="E088">
+    <p>Effective Since: 01- 04- 2003</p>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E089" data-page="7">
+    <div class="entity-badge">E089</div>
+    <div class="text-content" id="E089">
+    <h2>Procedures Manual</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E090" data-page="7">
+    <div class="entity-badge">E090</div>
+    <div class="text-content" id="E090">
+    <h2>Chapter :  1</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E091" data-page="7">
+    <div class="entity-badge">E091</div>
+    <div class="text-content" id="E091">
+    <h2>Document Control</h2>
+    
+    </div>
+      </section>
+
+  <section class="entity" data-entity="E092" data-page="7">
+    <div class="entity-badge">E092</div>
+    <div class="table-container" id="E092">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Para 1.3.1,1.3.2</th>
+            <th>07-10-22</th>
+            <th>'SQE Manager' title replaced with 'SQE Director'.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Para 1.2, 1.3.1</td>
+            <td>04-06-24</td>
+            <td>MOORING SYSTEM MANAGEMENT PLAN (MSMP) was inserted</td>
+          </tr>
+          <tr>
+            <td>Para 1.3.1</td>
+            <td>04-06-24</td>
+            <td>'Tech Manager' title replaced with 'Tech Director'.</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>04-12-24</td>
+            <td>Page setup.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </section>
+
+</div>
+
+
+    </main>
+
+    <footer class="document-footer">
+        <p>Generated from technical document • Powered by Document Processing Pipeline</p>
+    </footer>
+</body>
+</html>

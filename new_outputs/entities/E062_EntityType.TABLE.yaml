@@ -1,0 +1,20 @@
+# Metadata
+# entity_id: E062
+# type: !!python/object/apply:src.pipeline.pipeline_config.EntityType
+# - table
+# source_page: 5
+# position: 62
+# original_bbox:
+# - 28.3348388671875
+# - 732.1766204833984
+# - 566.2684936523438
+# - 669.6310577392578
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# extraction_method: docling
+# has_surrounding_text: false
+# 
+
+table:
+- Messrooms: Recreation Rooms (when applicable)
+   x 2:  x 2

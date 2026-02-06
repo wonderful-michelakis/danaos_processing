@@ -1,0 +1,29 @@
+# Metadata
+# entity_id: E092
+# type: !!python/object/apply:src.pipeline.pipeline_config.EntityType
+# - table
+# source_page: 7
+# position: 92
+# original_bbox:
+# - 64.29209899902344
+# - 732.2205657958984
+# - 560.84521484375
+# - 621.0062255859375
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# extraction_method: docling
+# has_surrounding_text: false
+# 
+
+table:
+- Para 1.3.1,1.3.2: Para 1.2, 1.3.1
+  07-10-22: 04-06-24
+  '''SQE Manager'' title replaced with ''SQE Director''.': MOORING SYSTEM MANAGEMENT
+    PLAN (MSMP) was inserted
+- Para 1.3.1,1.3.2: Para 1.3.1
+  07-10-22: 04-06-24
+  '''SQE Manager'' title replaced with ''SQE Director''.': '''Tech Manager'' title
+    replaced with ''Tech Director''.'
+- Para 1.3.1,1.3.2: P1
+  07-10-22: 04-12-24
+  '''SQE Manager'' title replaced with ''SQE Director''.': Page setup.

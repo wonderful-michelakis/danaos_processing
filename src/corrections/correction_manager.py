@@ -50,6 +50,22 @@ class CorrectionManager:
         if not self.manifest_path.exists():
             raise FileNotFoundError(f"Manifest not found: {self.manifest_path}")
 
+    def _load_manifest(self) -> dict:
+        """
+        Load manifest.yaml
+
+        Returns:
+            Dictionary with manifest data
+        """
+        try:
+            with open(self.manifest_path, 'r', encoding='utf-8') as f:
+                # Use yaml.Loader to handle EntityType enums
+                manifest = yaml.load(f, Loader=yaml.Loader)
+                return manifest if manifest else {}
+        except Exception as e:
+            print(f"Warning: Could not load manifest: {e}")
+            return {}
+
     def load_corrections(self) -> dict:
         """
         Load existing corrections from corrections.yaml
@@ -477,3 +493,175 @@ Please provide the corrected content in the same format. Only output the correct
             corrected_content = '\n'.join(lines[1:-1]) if len(lines) > 2 else corrected_content
 
         return corrected_content
+
+    async def document_wide_correction(self, user_prompt: str) -> list[dict]:
+        """
+        Apply document-wide AI corrections based on user prompt
+
+        Args:
+            user_prompt: Natural language instruction for corrections
+                        (e.g., "Fix all date formats to YYYY-MM-DD")
+
+        Returns:
+            List of proposed changes with structure:
+            [
+                {
+                    "entity_id": "E001",
+                    "original_content": "...",
+                    "corrected_content": "...",
+                    "reason": "Fixed date format"
+                },
+                ...
+            ]
+        """
+        from openai import AsyncOpenAI
+
+        # Get API key
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+
+        # Load all entities
+        manifest = self._load_manifest()
+        all_entities = []
+
+        for entity_info in manifest.get('entities', []):
+            entity_id = entity_info['id']
+            entity_data = self.get_entity_content(entity_id)
+            if entity_data:
+                all_entities.append({
+                    'entity_id': entity_id,
+                    'type': entity_data['type'],
+                    'page': entity_data['page'],
+                    'content': entity_data['content']
+                })
+
+        # Prepare document context for AI
+        document_context = "# Document Entities\n\n"
+        for entity in all_entities:
+            document_context += f"## Entity {entity['entity_id']} (Page {entity['page']}, Type: {entity['type']})\n"
+            document_context += f"```\n{entity['content']}\n```\n\n"
+
+        # Construct AI prompt
+        system_prompt = """You are a document correction assistant. Analyze the entire document and propose corrections based on the user's instruction.
+
+For each entity that needs correction, output in this EXACT JSON format:
+{
+  "corrections": [
+    {
+      "entity_id": "E001",
+      "corrected_content": "...",
+      "reason": "Brief explanation of what was corrected"
+    }
+  ]
+}
+
+IMPORTANT:
+- Only include entities that need changes
+- Output ONLY valid JSON, no explanations outside the JSON
+- Preserve the original format (markdown, YAML, etc.) of each entity
+- The corrected_content should be the COMPLETE corrected content, not just changes"""
+
+        full_prompt = f"""{document_context}
+
+User Instruction:
+{user_prompt}
+
+Analyze all entities above and propose corrections. Output in the specified JSON format."""
+
+        # Call OpenAI API
+        client = AsyncOpenAI(api_key=api_key)
+
+        response = await client.chat.completions.create(
+            model="gpt-4o",  # Using gpt-4o for better JSON output
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": full_prompt}
+            ],
+            temperature=0.3,
+            response_format={"type": "json_object"}  # Ensure JSON output
+        )
+
+        # Parse AI response
+        import json
+        ai_response = response.choices[0].message.content.strip()
+        corrections_data = json.loads(ai_response)
+
+        # Build proposed changes with original content
+        proposed_changes = []
+        for correction in corrections_data.get('corrections', []):
+            entity_id = correction['entity_id']
+            # Get original content
+            entity_data = self.get_entity_content(entity_id)
+            if entity_data:
+                proposed_changes.append({
+                    'entity_id': entity_id,
+                    'original_content': entity_data['content'],
+                    'corrected_content': correction['corrected_content'],
+                    'reason': correction['reason']
+                })
+
+        return proposed_changes
+
+    def apply_document_wide_corrections(self, corrections: list[dict], user_prompt: str) -> dict:
+        """
+        Apply multiple corrections and regenerate document
+
+        Args:
+            corrections: List of corrections from document_wide_correction()
+            user_prompt: Original user prompt (for logging)
+
+        Returns:
+            dict with 'success', 'corrections_applied', 'html_path'
+        """
+        timestamp = datetime.now().isoformat()
+        corrections_applied = []
+
+        # Apply each correction
+        for correction in corrections:
+            try:
+                # Create CorrectionEntry object
+                correction_entry = CorrectionEntry(
+                    entity_id=correction['entity_id'],
+                    correction_type='ai',
+                    original_content=correction.get('original_content', ''),
+                    corrected_content=correction['corrected_content'],
+                    reason=f"Document-wide AI correction: {correction['reason']}",
+                    timestamp=timestamp,
+                    user_prompt=user_prompt
+                )
+
+                # Save the correction
+                self.save_correction(correction_entry)
+
+                # Apply to entity file
+                self.apply_correction(
+                    entity_id=correction['entity_id'],
+                    corrected_content=correction['corrected_content'],
+                    correction_type='ai',
+                    reason=f"Document-wide AI correction: {correction['reason']}",
+                    user_prompt=user_prompt
+                )
+
+                corrections_applied.append(correction['entity_id'])
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                print(f"Warning: Failed to apply correction to {correction['entity_id']}: {e}")
+
+        # Regenerate HTML
+        try:
+            html_path = self.regenerate_html()
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f"Corrections applied but HTML regeneration failed: {e}",
+                'corrections_applied': corrections_applied
+            }
+
+        return {
+            'success': True,
+            'corrections_applied': corrections_applied,
+            'html_path': str(html_path),
+            'message': f"Applied {len(corrections_applied)} corrections successfully"
+        }

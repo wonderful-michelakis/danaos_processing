@@ -189,6 +189,182 @@ class DocumentPipeline:
             traceback.print_exc()
             return None
 
+    def _is_list_intro(self, text: str) -> bool:
+        """Check if text introduces a list (ends with colon)"""
+        text = text.strip()
+        return text.endswith(':') and len(text) > 10
+
+    def _is_list_item(self, text: str, bbox: list[float] | None, prev_bbox: list[float] | None, after_colon: bool = False) -> bool:
+        """
+        Detect if a text item is likely a list item
+
+        Criteria:
+        - Has indentation from left margin
+        - Has list markers (-, *, •, ##, numbers)
+        - Following a sentence that ends with ":"
+        """
+        if not text or not bbox:
+            return False
+
+        text = text.strip()
+
+        import re
+
+        # CRITICAL: Exclude section headers with numbers (1.2, 1.3.1, etc.)
+        # Check if text starts with section number pattern (with or without ##)
+        # Match: "1.2 APPLICATION", "## 1.2 APPLICATION", "## - 1.2 APPLICATION"
+        if re.match(r'^#*\s*-?\s*\d+\.\d+', text):
+            return False
+
+        # Exclude sentences that look like regular text (start with "The", "This", etc.)
+        # UNLESS we're after a colon (list intro)
+        if not after_colon and re.match(r'^(The|This|It|A|An|In|For|To|From|Furthermore)\s+\w+', text, re.IGNORECASE):
+            return False
+
+        # Check for explicit list markers
+        list_markers = ['- ', '* ', '• ', '◦ ', '▪ ', '→ ']
+        if any(text.startswith(marker) for marker in list_markers):
+            return True
+
+        # Check for numbered lists (1., 2., etc.) - but not section numbers (1.1, 1.2)
+        if re.match(r'^\d+\.\s', text) and not re.match(r'^\d+\.\d+', text):
+            return True
+
+        # Check for markdown headers used as list items (##)
+        # But only if they don't look like section headers or regular text
+        if text.startswith('##'):
+            # Remove ## and check content
+            content = text.replace('##', '').strip().lstrip('-').strip()
+            # If it starts with a number pattern like "1.3", it's a header not a list
+            if re.match(r'^\d+\.', content):
+                return False
+            # If it looks like regular text, not a list
+            if not after_colon and re.match(r'^(The|This|It|A|An|In|For)\s+\w+', content, re.IGNORECASE):
+                return False
+            return True
+
+        # Check for indented short items (likely list titles/items)
+        left_indent = bbox[0]
+
+        # If we're after a colon, be more lenient - treat indented items as list items
+        if after_colon and left_indent > 70 and len(text) < 150:
+            return True
+
+        # Otherwise, standard check
+        if left_indent > 85 and left_indent < 110:  # Common list indentation range
+            # Short text (< 100 chars) with indentation is likely a list item
+            # But exclude if it looks like a section header
+            if len(text) < 100 and not re.match(r'^\d+\.\d+', text):
+                return True
+
+        return False
+
+    def _should_merge_with_list(
+        self,
+        current_text: str,
+        current_bbox: list[float] | None,
+        list_items: list,
+        page_num: int
+    ) -> bool:
+        """
+        Determine if current item should be merged with existing list
+
+        Criteria:
+        - Same page
+        - Similar indentation or is continuation
+        - Close vertical proximity
+        """
+        if not list_items or not current_bbox:
+            return False
+
+        import re
+
+        text = current_text.strip()
+
+        # Check if list started with a colon (intro text)
+        first_item_text = list_items[0].get('text', '').strip()
+        after_colon = first_item_text.endswith(':')
+
+        # NEVER merge these with lists:
+        # 1. Section headers (1.2, 1.3.1, etc.)
+        if re.match(r'^#*\s*-?\s*\d+\.\d+', text):
+            return False
+
+        # 2. Regular sentences starting with common words (UNLESS after colon)
+        if not after_colon and re.match(r'^(The|This|It|A|An|In|For|To|From|Furthermore|Moreover)\s+\w+', text, re.IGNORECASE):
+            return False
+
+        last_item = list_items[-1]
+        last_bbox = last_item.get('bbox')
+        last_page = last_item.get('page')
+
+        # Must be same page
+        if page_num != last_page:
+            return False
+
+        # Check vertical proximity - be more lenient after colon
+        if last_bbox:
+            vertical_gap = abs(current_bbox[1] - last_bbox[1])
+            max_gap = 40 if after_colon else 30
+            if vertical_gap > max_gap:
+                return False
+
+        # Check if it's a list item (pass after_colon context)
+        if self._is_list_item(current_text, current_bbox, last_bbox, after_colon):
+            return True
+
+        # Check if it's a description/continuation (more indented than list item)
+        if last_bbox and current_bbox[0] > last_bbox[0] + 15:
+            # Also check it's not too long (descriptions should be reasonable length)
+            if len(text) < 300:
+                return True
+
+        return False
+
+    def _merge_list_items(self, list_items: list) -> str:
+        """
+        Merge list items into formatted markdown list
+
+        Handles:
+        - List items with descriptions
+        - Nested indentation
+        - Various list markers
+        """
+        if not list_items:
+            return ""
+
+        merged_lines = []
+        is_first = True
+
+        for item in list_items:
+            text = item['text'].strip()
+            indent = item.get('bbox', [0])[0]
+
+            # Step 1: Remove ALL markdown formatting and bullet markers
+            # Remove ## markers (can be multiple)
+            while text.startswith('##'):
+                text = text[2:].lstrip()
+
+            # Remove bullet markers
+            if text.startswith(('-', '*', '•', '◦', '▪', '→')):
+                text = text[1:].lstrip()
+
+            # Step 2: Add clean formatting based on content type
+            if len(text) > 0:
+                # Special case: first item ending with ":" is an intro, don't add bullet
+                if is_first and text.endswith(':'):
+                    merged_lines.append(text)
+                elif len(text) < 200 and indent < 120:
+                    # Short text = list item
+                    merged_lines.append(f"- {text}")
+                else:
+                    # Long text = description/continuation
+                    merged_lines.append(f"  {text}")
+
+                is_first = False
+
+        return '\n'.join(merged_lines)
+
     def _extract_entities(
         self,
         doc,
@@ -200,6 +376,10 @@ class DocumentPipeline:
 
         entities = []
         entity_counter = 1
+
+        # Buffer for collecting list items
+        list_buffer = []
+        prev_bbox = None
 
         # Iterate through document items using Docling 2.x API
         for item, level in doc.iterate_items():
@@ -220,21 +400,72 @@ class DocumentPipeline:
 
             # Process based on item type
             if isinstance(item, TextItem):
-                # Text block
-                entity = self.processor.process_text_block(
-                    text=item.text,
-                    entity_id=entity_id,
-                    page_num=page_num,
-                    position=entity_counter,
-                    bbox=bbox
-                )
-                entities.append(entity)
-                entity_counter += 1
+                text = item.text.strip()
+
+                # Check if this should be part of a list
+                is_list_intro = self._is_list_intro(text)
+                is_list_item_check = self._is_list_item(text, bbox, prev_bbox)
+                should_merge = self._should_merge_with_list(text, bbox, list_buffer, page_num)
+
+                if is_list_intro or is_list_item_check or should_merge:
+                    # Add to list buffer (including intro sentences ending with :)
+                    list_buffer.append({
+                        'text': text,
+                        'bbox': bbox,
+                        'page': page_num
+                    })
+                    prev_bbox = bbox
+                else:
+                    # Not a list item - flush any buffered list first
+                    if list_buffer:
+                        # Create merged list entity
+                        merged_text = self._merge_list_items(list_buffer)
+                        first_item = list_buffer[0]
+                        entity = self.processor.process_text_block(
+                            text=merged_text,
+                            entity_id=entity_id,
+                            page_num=first_item['page'],
+                            position=entity_counter,
+                            bbox=first_item['bbox']
+                        )
+                        entities.append(entity)
+                        entity_counter += 1
+                        entity_id = f"E{entity_counter:03d}"
+                        list_buffer = []
+
+                    # Process current item as regular text
+                    entity = self.processor.process_text_block(
+                        text=text,
+                        entity_id=entity_id,
+                        page_num=page_num,
+                        position=entity_counter,
+                        bbox=bbox
+                    )
+                    entities.append(entity)
+                    entity_counter += 1
+                    prev_bbox = bbox
 
             elif isinstance(item, TableItem):
+                # Flush any buffered list items before processing table
+                if list_buffer:
+                    merged_text = self._merge_list_items(list_buffer)
+                    first_item = list_buffer[0]
+                    entity = self.processor.process_text_block(
+                        text=merged_text,
+                        entity_id=entity_id,
+                        page_num=first_item['page'],
+                        position=entity_counter,
+                        bbox=first_item['bbox']
+                    )
+                    entities.append(entity)
+                    entity_counter += 1
+                    entity_id = f"E{entity_counter:03d}"
+                    list_buffer = []
+                    prev_bbox = None
                 # Step 1: Try Docling extraction
                 table_md = item.export_to_markdown()
 
+                # Table processing
                 # Step 2: Prepare fallback image if bbox available
                 table_region_path = None
                 if bbox:
@@ -257,12 +488,29 @@ class DocumentPipeline:
                 )
                 entities.append(entity)
                 entity_counter += 1
+                prev_bbox = None  # Reset for next items
 
                 # Step 4: Cleanup temp image
                 if table_region_path and table_region_path.exists():
                     table_region_path.unlink()
 
             elif isinstance(item, PictureItem):
+                # Flush any buffered list items before processing picture
+                if list_buffer:
+                    merged_text = self._merge_list_items(list_buffer)
+                    first_item = list_buffer[0]
+                    entity = self.processor.process_text_block(
+                        text=merged_text,
+                        entity_id=entity_id,
+                        page_num=first_item['page'],
+                        position=entity_counter,
+                        bbox=first_item['bbox']
+                    )
+                    entities.append(entity)
+                    entity_counter += 1
+                    entity_id = f"E{entity_counter:03d}"
+                    list_buffer = []
+                    prev_bbox = None
                 # Image/Picture - need to extract and process
                 # Save image temporarily
                 if item.image:
@@ -279,9 +527,24 @@ class DocumentPipeline:
                     )
                     entities.append(entity)
                     entity_counter += 1
+                    prev_bbox = None  # Reset for next items
 
                     # Clean up temp image
                     temp_image_path.unlink()
+
+        # Flush any remaining list items at end of document
+        if list_buffer:
+            entity_id = f"E{entity_counter:03d}"
+            merged_text = self._merge_list_items(list_buffer)
+            first_item = list_buffer[0]
+            entity = self.processor.process_text_block(
+                text=merged_text,
+                entity_id=entity_id,
+                page_num=first_item['page'],
+                position=entity_counter,
+                bbox=first_item['bbox']
+            )
+            entities.append(entity)
 
         return entities
 

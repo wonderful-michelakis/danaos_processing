@@ -1,0 +1,174 @@
+corrections:
+  E008:
+    corrected_content: 'The purpose of this procedure is to define how controlled
+      documents are:
+
+      - approved and authorised for issue
+
+      - distributed
+
+      - reviewed.'
+    correction_type: ai
+    original_content: 'The purpose of this procedure is to define how controlled documents
+      are:
+
+      * approved and authorised for issue
+
+      * distributed
+
+      * reviewed.'
+    reason: AI-assisted correction
+    timestamp: '2026-02-06T09:36:21.152365'
+    user_prompt: Replace the asterisks with dashes
+  E010:
+    corrected_content: 'This procedure applies to all documents used to define or
+      referred to by the DANAOS SAFETY MANAGEMENT SYSTEM. All such documents are considered
+      as controlled documents. These documents are the following:
+
+      * Policy Manual
+
+      * Describes the company''s ''Safety & Environmental Protection Policy'' & provides
+      the framework upon which the company''s ''Safety Management System'' is established.
+
+      * Procedures
+
+      * Describes the basic Company Procedures covering shipboard operations.
+
+      * Emergency Procedures Manual
+
+      * Fleet Instructions Manual
+
+      * SOPEP
+
+      * SOLAS FIRE TRAINING MANUAL
+
+      * GARBAGE MANAGEMENT PLAN MANUAL
+
+      * BALLAST WATER MANAGEMENT PLAN
+
+      * CYBER SECURITY MANUAL
+
+      * VECTOR MANAGEMENT PLAN
+
+      * ECDIS MANAGEMENT MANUAL
+
+      * INVENTORY OF HAZARDOUS MATERIAL
+
+      * MOORING SYSTEM MANAGEMENT PLAN (MSMP)'
+    correction_type: ai
+    original_content: 'This procedure applies to all documents used to define or referred
+      to by the DANAOS SAFETY MANAGEMENT SYSTEM. All such documents are considered
+      as controlled documents. These documents are the following:
+
+      - Policy Manual
+
+      - Describes the company''s ''Safety & Environmental Protection Policy'' & provides
+      the framework upon which the company''s ''Safety Management System'' is established.
+
+      - Procedures
+
+      - Describes the basic Company Procedures covering shipboard operations.
+
+      - Emergency Procedures Manual
+
+      - Fleet Instructions Manual
+
+      - SOPEP
+
+      - SOLAS FIRE TRAINING MANUAL
+
+      - GARBAGE MANAGEMENT PLAN MANUAL
+
+      - BALLAST WATER MANAGEMENT PLAN
+
+      - CYBER SECURITY MANUAL
+
+      - VECTOR MANAGEMENT PLAN
+
+      - ECDIS MANAGEMENT MANUAL
+
+      - INVENTORY OF HAZARDOUS MATERIAL
+
+      - MOORING SYSTEM MANAGEMENT PLAN (MSMP)'
+    reason: 'Document-wide AI correction: Replaced dashes with asterisks in the list.'
+    timestamp: '2026-02-05T19:19:00.424273'
+    user_prompt: Replace all the dashes in the document in the lists with asterisks,
+      *
+  E011:
+    corrected_content: Furthermore, a number of reference publications (vessel & office
+      library) and all Records (Forms) & Checklists are also controlled through this
+      procedure.
+    correction_type: ai
+    original_content: Furthermore,  a  number  of  reference  publications  (vessel  &  office  library)  and  all  Records
+      (Forms) & Checklists are also controlled through this procedure.
+    reason: 'Document-wide AI correction: Replaced dashes with asterisks in the list.'
+    timestamp: '2026-02-05T19:19:00.469904'
+    user_prompt: Replace all the dashes in the document in the lists with asterisks,
+      *
+  E021:
+    corrected_content: "table:\n- Controlled Document: POLICY MANUAL\n  Approval:\
+      \ Management\n- Controlled Document: PROCEDURES 2\n  Approval: Management\n\
+      - Controlled Document: EMERGENCY PROCEDURES MANUAL\n  Approval: Management\n\
+      - Controlled Document: FLEET INSTRUCTIONS MANUAL\n  Approval: Management\n-\
+      \ Controlled Document: ECDIS MANAGEMENT MANUAL\n  Approval: SQE Director\n-\
+      \ Controlled Document: VECTOR MANAGEMENT PLAN\n  Approval: SQE Director\n- Controlled\
+      \ Document: SOPEP\n  Approval: Flag Administration or Classification Society\n\
+      - Controlled Document: SOLAS FIRE TRAINING MANUAL\n  Approval: Management\n\
+      - Controlled Document: GARBAGE MANAGEMENT PLAN MANUAL\n  Approval: Management\n\
+      - Controlled Document: BALLAST WATER MANAGEMENT PLAN\n  Approval: Management\
+      \ or Classification Society / Flag\n- Controlled Document: CYBER SECURITY MANUAL\n\
+      \  Approval: Management\n- Controlled Document: VECTOR MANAGEMENT PLAN\n  Approval:\
+      \ SQE Director\n- Controlled Document: ECDIS MANAGEMENT MANUAL\n  Approval:\
+      \ SQE Director\n- Controlled Document: INVENTORY OF HAZARDOUS MATERIAL\n  Approval:\
+      \ SQE Director /Tech Director\n- Controlled Document: MOORING SYSTEM MANAGEMENT\
+      \ PLAN (MSMP)\n  Approval: SQE Director /Tech Director"
+    correction_type: manual
+    original_content: "table:\n- Controlled Document: POLICY MANUAL\n  Approval: Management\n\
+      - Controlled Document: PROCEDURES\n  Approval: Management\n- Controlled Document:\
+      \ EMERGENCY PROCEDURES MANUAL\n  Approval: Management\n- Controlled Document:\
+      \ FLEET INSTRUCTIONS MANUAL\n  Approval: Management\n- Controlled Document:\
+      \ ECDIS MANAGEMENT MANUAL\n  Approval: SQE Director\n- Controlled Document:\
+      \ VECTOR MANAGEMENT PLAN\n  Approval: SQE Director\n- Controlled Document: SOPEP\n\
+      \  Approval: Flag Administration or Classification Society\n- Controlled Document:\
+      \ SOLAS FIRE TRAINING MANUAL\n  Approval: Management\n- Controlled Document:\
+      \ GARBAGE MANAGEMENT PLAN MANUAL\n  Approval: Management\n- Controlled Document:\
+      \ BALLAST WATER MANAGEMENT PLAN\n  Approval: Management or Classification Society\
+      \ / Flag\n- Controlled Document: CYBER SECURITY MANUAL\n  Approval: Management\n\
+      - Controlled Document: VECTOR MANAGEMENT PLAN\n  Approval: SQE Director\n- Controlled\
+      \ Document: ECDIS MANAGEMENT MANUAL\n  Approval: SQE Director\n- Controlled\
+      \ Document: INVENTORY OF HAZARDOUS MATERIAL\n  Approval: SQE Director /Tech\
+      \ Director\n- Controlled Document: MOORING SYSTEM MANAGEMENT PLAN (MSMP)\n \
+      \ Approval: SQE Director /Tech Director"
+    reason: Changed number
+    timestamp: '2026-02-05T19:19:35.038860'
+  E023:
+    corrected_content: All Controlled Documents shall be distributed to Head Office
+      and to the vessels according to their contents and intended use as per Distribution
+      Table below.
+    correction_type: ai
+    original_content:  All  Controlled  Documents  shall  be  distributed  to  Head  Office  and  to  the  vessels
+      according to their contents and intended use as per Distribution Table below.
+    reason: 'Document-wide AI correction: Removed the '''' symbol at the beginning
+      of the text.'
+    timestamp: '2026-02-05T19:15:47.643868'
+    user_prompt: Remove the "" symbols
+  E024:
+    corrected_content: Distribution status of all Controlled Documents is updated
+      by the SQE Director.
+    correction_type: ai
+    original_content:  Distribution status of all Controlled Documents is updated
+      by the SQE Director.
+    reason: 'Document-wide AI correction: Removed the '''' symbol at the beginning
+      of the text.'
+    timestamp: '2026-02-05T19:15:47.687124'
+    user_prompt: Remove the "" symbols
+  E025:
+    corrected_content: Each controlled document exists in a "master copy" which is
+      kept by the SQE Director with the necessary approval evidence.
+    correction_type: ai
+    original_content:  Each controlled document exists in a "master copy" which is
+      kept by the SQE Director with the necessary approval evidence.
+    reason: 'Document-wide AI correction: Removed the '''' symbol at the beginning
+      of the text.'
+    timestamp: '2026-02-05T19:15:47.728470'
+    user_prompt: Remove the "" symbols

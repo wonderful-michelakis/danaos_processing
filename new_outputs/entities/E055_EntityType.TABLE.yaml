@@ -1,0 +1,37 @@
+# Metadata
+# entity_id: E055
+# type: !!python/object/apply:src.pipeline.pipeline_config.EntityType
+# - table
+# source_page: 4
+# position: 55
+# original_bbox:
+# - 28.340761184692383
+# - 625.6238861083984
+# - 566.5481567382812
+# - 98.16729736328125
+# confidence: 1.0
+# processing_notes: Table extracted from Docling
+# extraction_method: docling
+# has_surrounding_text: false
+# 
+
+table:
+- D Di is st tr ri ib bu ut ti io on n: D DA AN NA AO OS S H HE EA AD D O OF FF FI
+    IC CE E
+  P Po ol li ic cy y M Ma an nu ua al l: D DA AN NA AO OS S H HE EA AD D O OF FF FI
+    IC CE E
+  P Pr ro oc ce ed du ur re es M Ma an nu ua al l: D DA AN NA AO OS S H HE EA AD D
+    O OF FF FI IC CE E
+  s F F. .I I. .M M. .: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  E E. .P P. .M M. .: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  S SO OP PE EP P: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  G G. .M M. .P P. .: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  C CY YB BE ER R S SE EC CU UR RI IT TY Y M MA AN NU UA AL L: D DA AN NA AO OS S
+    H HE EA AD D O OF FF FI IC CE E
+  I IH HS S: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  S SO OL LA AS S & & F Fi ir re e f fi ig gh ht ti in ng g T Tr ra ai in ni in ng g M Ma an nu ua al ls s: D
+    DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  S SE EE EM MP: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  P E EC CD DI IS S: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  Vector Mgnt Plan: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E
+  B BW WM MP P F Fo or rm ms s: D DA AN NA AO OS S H HE EA AD D O OF FF FI IC CE E

@@ -208,6 +208,72 @@ class ComparisonViewer:
             except Exception as e:
                 return jsonify({'error': f'Failed to load corrections: {str(e)}'}), 500
 
+        @app.route('/api/document-wide-correction', methods=['POST'])
+        def document_wide_correction():
+            """
+            POST: Analyze entire document and propose AI corrections
+            Request: {user_prompt: "Fix all dates to YYYY-MM-DD format"}
+            Response: {proposed_changes: [{entity_id, original_content, corrected_content, reason}]}
+            """
+            try:
+                data = request.get_json()
+                user_prompt = data.get('user_prompt')
+
+                if not user_prompt:
+                    return jsonify({'error': 'user_prompt required'}), 400
+
+                # Get proposed changes from AI (run async function synchronously)
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    proposed_changes = loop.run_until_complete(
+                        self.correction_manager.document_wide_correction(user_prompt)
+                    )
+                finally:
+                    loop.close()
+
+                return jsonify({
+                    'success': True,
+                    'proposed_changes': proposed_changes,
+                    'total_changes': len(proposed_changes)
+                })
+
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 400
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': f'Document-wide correction failed: {str(e)}'}), 500
+
+        @app.route('/api/apply-document-wide-corrections', methods=['POST'])
+        def apply_document_wide_corrections():
+            """
+            POST: Apply multiple corrections from document-wide analysis
+            Request: {corrections: [...], user_prompt: "..."}
+            Response: {success, corrections_applied, html_path}
+            """
+            try:
+                data = request.get_json()
+                corrections = data.get('corrections')
+                user_prompt = data.get('user_prompt')
+
+                if not corrections or not user_prompt:
+                    return jsonify({'error': 'corrections and user_prompt required'}), 400
+
+                # Apply all corrections
+                result = self.correction_manager.apply_document_wide_corrections(corrections, user_prompt)
+
+                # Update html_path reference
+                if result['success']:
+                    self.html_path = Path(result['html_path'])
+
+                return jsonify(result)
+
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': f'Apply corrections failed: {str(e)}'}), 500
+
         return app
 
     def launch(self, port=5000, auto_open=True):
