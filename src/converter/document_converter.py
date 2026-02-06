@@ -295,6 +295,80 @@ class DocumentConverter:
 
         return html
 
+    def _clean_mermaid_code(self, raw_code: str) -> tuple[str, str]:
+        """
+        Separate preamble text from valid Mermaid syntax and sanitize
+        for browser-side rendering with mermaid.js.
+
+        Returns (preamble, clean_mermaid).
+        """
+        # Known mermaid diagram type declarations
+        diagram_types = [
+            'graph ', 'graph\n', 'flowchart ', 'flowchart\n',
+            'sequenceDiagram', 'classDiagram', 'stateDiagram',
+            'erDiagram', 'gantt', 'pie', 'gitGraph', 'journey',
+            'mindmap', 'timeline', 'sankey', 'xychart', 'block-beta',
+            'C4Context', 'C4Container', 'C4Component', 'C4Dynamic',
+        ]
+
+        # Find where the actual mermaid syntax starts
+        mermaid_start = -1
+        for dtype in diagram_types:
+            idx = raw_code.find(dtype)
+            if idx != -1 and (mermaid_start == -1 or idx < mermaid_start):
+                mermaid_start = idx
+
+        if mermaid_start == -1:
+            return '', raw_code
+
+        preamble = raw_code[:mermaid_start].strip()
+        mermaid_code = raw_code[mermaid_start:]
+
+        # Sanitize for mermaid.js v11 browser-side rendering:
+        #
+        # 1. Quote node labels [...] that contain special chars.
+        #    Mermaid treats () as round-node shape and {} as rhombus,
+        #    so A[text (with parens)] breaks. Use A["text (with parens)"].
+        #
+        # 2. Remove empty/whitespace-only edge labels |  | which break parsing.
+        #    Convert  -->| |  to  -->
+        #
+        # 3. Quote edge labels |...| that contain special chars like ? or (.
+
+        # Fix empty edge labels: -->| | or ==>| | -> just the arrow
+        mermaid_code = re.sub(r'(-->|==>|-.->|---->)\|\s*\|', r'\1', mermaid_code)
+
+        # Quote node labels in [...] that contain problematic characters
+        # Match node labels: letter/digit ID followed by [content]
+        def quote_node_label(match):
+            prefix = match.group(1)  # node ID
+            label = match.group(2)   # label text
+            # Escape inner double quotes
+            label = label.replace('"', '#quot;')
+            return f'{prefix}["{label}"]'
+
+        # Match: NodeId[label text] where label contains special chars
+        mermaid_code = re.sub(
+            r'(\b\w+)\[([^\[\]"]*[(){}?].*?)\]',
+            quote_node_label,
+            mermaid_code
+        )
+
+        # Quote edge labels |text| that contain special chars
+        def quote_edge_label(match):
+            arrow = match.group(1)
+            label = match.group(2)
+            label = label.replace('"', '#quot;')
+            return f'{arrow}|"{label}"|'
+
+        mermaid_code = re.sub(
+            r'(-->|==>|-.->|---->)\|([^"|][^|]*[(){}?][^|]*)\|',
+            quote_edge_label,
+            mermaid_code
+        )
+
+        return preamble, mermaid_code
+
     def _process_diagram(self, entity: DocumentEntity) -> str:
         """Convert Mermaid diagram to image"""
         # Extract Mermaid code from code block
@@ -302,10 +376,16 @@ class DocumentConverter:
         if not mermaid_match:
             return f'<p class="error">Could not parse diagram {entity.entity_id}</p>'
 
-        mermaid_code = mermaid_match.group(1)
+        raw_mermaid = mermaid_match.group(1)
 
         # Check for surrounding text (before code block)
         text_before = entity.content[:mermaid_match.start()].strip()
+
+        # Separate preamble from actual mermaid syntax
+        preamble, mermaid_code = self._clean_mermaid_code(raw_mermaid)
+        if preamble:
+            # Combine any text before the code fence with the in-fence preamble
+            text_before = f"{text_before}\n\n{preamble}".strip() if text_before else preamble
 
         # Save Mermaid code to temp file
         mermaid_file = self.temp_dir / f"{entity.entity_id}.mmd"
@@ -323,8 +403,8 @@ class DocumentConverter:
             )
 
             if result.returncode != 0:
-                print(f"    Warning: mermaid-cli failed for {entity.entity_id}: {result.stderr}")
-                return self._diagram_fallback(mermaid_code, entity.entity_id)
+                print(f"    Warning: mermaid-cli failed for {entity.entity_id}, using browser rendering")
+                return self._diagram_fallback(mermaid_code, entity.entity_id, text_before)
 
             # Embed image as base64 (for standalone HTML)
             image_data = output_file.read_bytes()
@@ -341,23 +421,23 @@ class DocumentConverter:
             return html
 
         except FileNotFoundError:
-            print("    Error: mermaid-cli not found. Install with: npm install -g @mermaid-js/mermaid-cli")
-            return self._diagram_fallback(mermaid_code, entity.entity_id)
+            print(f"    mermaid-cli not found for {entity.entity_id}, using browser rendering")
+            return self._diagram_fallback(mermaid_code, entity.entity_id, text_before)
         except subprocess.TimeoutExpired:
             return f'<p class="error">Diagram rendering timeout for {entity.entity_id}</p>'
 
-    def _diagram_fallback(self, mermaid_code: str, entity_id: str) -> str:
-        """Fallback: Show Mermaid code if rendering fails"""
-        escaped_code = mermaid_code.replace('<', '&lt;').replace('>', '&gt;')
-        return f'''
-    <div class="diagram-fallback" id="{entity_id}">
-        <p class="error">Could not render diagram (mermaid-cli required)</p>
-        <details>
-            <summary>Show Mermaid code</summary>
-            <pre><code>{escaped_code}</code></pre>
-        </details>
-    </div>
-    '''
+    def _diagram_fallback(self, mermaid_code: str, entity_id: str, text_before: str = '') -> str:
+        """Fallback: Render Mermaid diagram in browser using mermaid.js"""
+        html = f'<div class="diagram-container" id="{entity_id}">\n'
+
+        if text_before:
+            html += f'  <div class="diagram-caption">{text_before}</div>\n'
+
+        # Use <pre class="mermaid"> for browser-side rendering by mermaid.js
+        html += f'  <pre class="mermaid">\n{mermaid_code}\n</pre>\n'
+        html += '</div>\n'
+
+        return html
 
     def _process_text(self, entity: DocumentEntity) -> str:
         """Convert markdown text to HTML"""
@@ -445,6 +525,11 @@ class DocumentConverter:
     <footer class="document-footer">
         <p>Generated from technical document • Powered by Document Processing Pipeline</p>
     </footer>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({{ startOnLoad: true, theme: 'default', securityLevel: 'loose' }});
+    </script>
 </body>
 </html>"""
 

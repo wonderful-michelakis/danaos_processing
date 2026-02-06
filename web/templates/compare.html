@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/correction_modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/document_ai_assistant.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+        // Expose to global scope for compare.js to use
+        window.mermaidLib = mermaid;
+    </script>
 </head>
 <body>
     <header class="toolbar">

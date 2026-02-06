@@ -10,6 +10,7 @@ Handles:
 """
 
 import os
+import re
 import yaml
 from pathlib import Path
 from dataclasses import dataclass, asdict
@@ -32,23 +33,112 @@ class CorrectionEntry:
 class CorrectionManager:
     """Manages document corrections with audit trail"""
 
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, html_path: Path = None):
         """
         Initialize CorrectionManager
 
         Args:
             output_dir: Path to output directory (e.g., p86_90/)
+            html_path: Path to the HTML file being viewed (used to determine
+                       which source markdown to read entity content from)
         """
         self.output_dir = Path(output_dir)
         self.corrections_path = self.output_dir / "corrections.yaml"
         self.manifest_path = self.output_dir / "manifest.yaml"
         self.entities_dir = self.output_dir / "entities"
 
+        # Determine the active source markdown based on the HTML being viewed.
+        # If viewing final_document_judge_friendly.html, use final_document_judge.md.
+        # Otherwise use final_document.md.
+        self.active_md_path = self._resolve_active_md(html_path)
+
+        # Cache for parsed entity content from the active markdown
+        self._md_entity_cache = None
+
         # Validate paths
         if not self.output_dir.exists():
             raise FileNotFoundError(f"Output directory not found: {self.output_dir}")
         if not self.manifest_path.exists():
             raise FileNotFoundError(f"Manifest not found: {self.manifest_path}")
+
+    def _resolve_active_md(self, html_path: Path = None) -> Path:
+        """
+        Determine which source markdown file to read entity content from.
+
+        If viewing judge HTML, use judge MD. Otherwise use regular MD.
+        """
+        if html_path is not None:
+            html_name = Path(html_path).name
+            # If the HTML is from the judge output, use the judge markdown
+            if 'judge' in html_name:
+                judge_md = self.output_dir / "final_document_judge.md"
+                if judge_md.exists():
+                    return judge_md
+
+        # Default: use regular final_document.md
+        regular_md = self.output_dir / "final_document.md"
+        if regular_md.exists():
+            return regular_md
+
+        return None
+
+    def _get_md_entity_content(self, entity_id: str) -> str | None:
+        """
+        Parse entity content from the active source markdown file.
+
+        This gives the actual content as it appears in the document after
+        judge processing (with merged entities), rather than the original
+        per-entity files which don't reflect merges.
+
+        Args:
+            entity_id: Entity ID (e.g., "E085")
+
+        Returns:
+            Entity content string, or None if not found
+        """
+        if self.active_md_path is None or not self.active_md_path.exists():
+            return None
+
+        # Use cache if available
+        if self._md_entity_cache is None:
+            self._md_entity_cache = self._parse_md_entity_blocks()
+
+        return self._md_entity_cache.get(entity_id)
+
+    def _parse_md_entity_blocks(self) -> dict[str, str]:
+        """
+        Parse the active markdown file into a dict of entity_id -> content.
+
+        Splits on entity marker comments and extracts content between them.
+        """
+        content = self.active_md_path.read_text(encoding='utf-8')
+        entity_pattern = r'<!-- Entity: (E\d+) \| Type: .*? \| Page: \d+ -->'
+
+        # Find all entity markers and their positions
+        markers = list(re.finditer(entity_pattern, content))
+
+        if not markers:
+            return {}
+
+        entities = {}
+        for i, match in enumerate(markers):
+            entity_id = match.group(1)
+            content_start = match.end()
+            content_end = markers[i + 1].start() if i + 1 < len(markers) else len(content)
+            block = content[content_start:content_end].strip()
+
+            # Strip trailing judge change log if present
+            changelog_match = re.search(r'\n---\s*\n# Judge Change Log', block)
+            if changelog_match:
+                block = block[:changelog_match.start()].strip()
+
+            entities[entity_id] = block
+
+        return entities
+
+    def invalidate_cache(self):
+        """Invalidate the parsed markdown cache (call after corrections)."""
+        self._md_entity_cache = None
 
     def _load_manifest(self) -> dict:
         """
@@ -136,14 +226,17 @@ class CorrectionManager:
         if not entity_info:
             raise ValueError(f"Entity {entity_id} not found in manifest")
 
-        # Get entity file path
-        entity_file = self.output_dir / entity_info['file']
+        # Try to get content from the active markdown document first.
+        # This reflects any judge merges (where multiple entities were
+        # combined into one). Falls back to original entity files.
+        content = self._get_md_entity_content(entity_id)
 
-        if not entity_file.exists():
-            raise FileNotFoundError(f"Entity file not found: {entity_file}")
-
-        # Read entity file content
-        content = self._read_entity_file(entity_file)
+        if content is None:
+            # Fallback: read from original entity file
+            entity_file = self.output_dir / entity_info['file']
+            if not entity_file.exists():
+                raise FileNotFoundError(f"Entity file not found: {entity_file}")
+            content = self._read_entity_file(entity_file)
 
         # Convert EntityType enum to string if needed
         entity_type = entity_info['type']
@@ -275,6 +368,55 @@ corrected: true
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(frontmatter)
 
+    @property
+    def is_judge_mode(self) -> bool:
+        """Check if we're working with a judge-processed document."""
+        if self.active_md_path is None:
+            return False
+        return 'judge' in self.active_md_path.name
+
+    def _update_md_entity_content(self, entity_id: str, new_content: str) -> None:
+        """
+        Update entity content directly in the active markdown file.
+
+        Replaces the content block for entity_id between its marker and
+        the next entity marker (or end of file).
+        """
+        if self.active_md_path is None or not self.active_md_path.exists():
+            raise FileNotFoundError(f"Active markdown not found: {self.active_md_path}")
+
+        md_content = self.active_md_path.read_text(encoding='utf-8')
+        entity_pattern = r'<!-- Entity: (E\d+) \| Type: .*? \| Page: \d+ -->'
+
+        markers = list(re.finditer(entity_pattern, md_content))
+
+        # Find the marker for our entity
+        target_idx = None
+        for i, match in enumerate(markers):
+            if match.group(1) == entity_id:
+                target_idx = i
+                break
+
+        if target_idx is None:
+            raise ValueError(f"Entity {entity_id} not found in {self.active_md_path.name}")
+
+        # Determine the content region to replace
+        marker = markers[target_idx]
+        content_start = marker.end()
+        content_end = markers[target_idx + 1].start() if target_idx + 1 < len(markers) else len(md_content)
+
+        # Check if the tail has the judge change log (only for last entity)
+        tail = md_content[content_start:content_end]
+        changelog_match = re.search(r'\n---\s*\n# Judge Change Log', tail)
+        if changelog_match:
+            content_end = content_start + changelog_match.start()
+
+        # Replace the content block, preserving surrounding whitespace
+        updated = md_content[:content_start] + f"\n\n{new_content}\n\n" + md_content[content_end:]
+
+        self.active_md_path.write_text(updated, encoding='utf-8')
+        print(f"✓ Updated {entity_id} in {self.active_md_path.name}")
+
     def apply_correction(
         self,
         entity_id: str,
@@ -310,9 +452,15 @@ corrected: true
         # Save correction to corrections.yaml
         self.save_correction(correction)
 
-        # Update entity file with corrected content
-        entity_file = self.output_dir / entity_data['metadata']['file']
-        self._write_entity_file(entity_file, entity_data, corrected_content)
+        if self.is_judge_mode:
+            # In judge mode: update the judge markdown directly.
+            # The judge MD has merged entities that don't exist in
+            # individual entity files, so we must edit the MD in-place.
+            self._update_md_entity_content(entity_id, corrected_content)
+        else:
+            # In regular mode: update the individual entity file
+            entity_file = self.output_dir / entity_data['metadata']['file']
+            self._write_entity_file(entity_file, entity_data, corrected_content)
 
         # Update manifest with correction metadata
         self._update_manifest_correction(entity_id, correction)
@@ -405,17 +553,25 @@ corrected: true
 
     def regenerate_html(self) -> Path:
         """
-        Regenerate HTML using DocumentConverter
+        Regenerate HTML using DocumentConverter.
+
+        In judge mode: converts the active judge markdown directly.
+        In regular mode: rebuilds final_document.md from entity files first.
 
         Returns:
             Path to regenerated HTML file
         """
         from ..converter.document_converter import DocumentConverter
 
-        # First, rebuild final_document.md from entity files
-        final_doc_path = self._rebuild_final_document()
+        if self.is_judge_mode:
+            # Judge mode: convert the judge markdown directly
+            # (it was already updated in-place by apply_correction)
+            final_doc_path = self.active_md_path
+        else:
+            # Regular mode: rebuild final_document.md from entity files
+            final_doc_path = self._rebuild_final_document()
 
-        # Then create DocumentConverter and generate HTML
+        # Convert markdown to HTML
         converter = DocumentConverter(final_doc_path, self.output_dir)
         html_path = converter.convert()
 

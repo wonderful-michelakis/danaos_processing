@@ -3,9 +3,9 @@ PDF-HTML Comparison Viewer
 Launch web interface to compare original PDF with processed HTML side-by-side
 
 Usage:
-    python compare_viewer.py input.pdf output/
-    python compare_viewer.py input.pdf output/ --port 8080
-    python compare_viewer.py input.pdf output/ --no-browser
+    python compare_viewer.py input.pdf output/final_document_friendly.html
+    python compare_viewer.py input.pdf output/final_document_judge_friendly.html --port 8080
+    python compare_viewer.py input.pdf output/final_document_friendly.html --no-browser
 """
 
 import argparse
@@ -22,11 +22,11 @@ from .correction_manager import CorrectionManager
 class ComparisonViewer:
     """PDF-HTML comparison viewer with synchronized navigation"""
 
-    def __init__(self, pdf_path: Path, output_dir: Path):
+    def __init__(self, pdf_path: Path, html_path: Path):
         self.pdf_path = pdf_path.resolve()
-        self.output_dir = output_dir.resolve()
-        self.html_path = output_dir / "final_document_friendly.html"
-        self.manifest_path = output_dir / "manifest.yaml"
+        self.html_path = html_path.resolve()
+        self.output_dir = html_path.parent
+        self.manifest_path = self.output_dir / "manifest.yaml"
 
         # Validate files exist
         if not self.pdf_path.exists():
@@ -34,14 +34,15 @@ class ComparisonViewer:
         if not self.html_path.exists():
             raise FileNotFoundError(
                 f"HTML not found: {self.html_path}\n"
-                f"Generate it first: python convert_to_friendly.py {output_dir}/final_document.md"
+                f"Generate it first: python convert_to_friendly.py {self.output_dir}/final_document.md"
             )
 
         # Load manifest for page mapping
         self.manifest = self._load_manifest()
 
-        # Initialize CorrectionManager
-        self.correction_manager = CorrectionManager(self.output_dir)
+        # Initialize CorrectionManager with html_path so it knows which
+        # source markdown to read (judge vs regular) for entity content
+        self.correction_manager = CorrectionManager(self.output_dir, html_path=self.html_path)
 
     def _load_manifest(self):
         """Load manifest.yaml if it exists"""
@@ -177,6 +178,9 @@ class ComparisonViewer:
                     user_prompt=user_prompt
                 )
 
+                # Invalidate cache so next entity fetch reflects changes
+                self.correction_manager.invalidate_cache()
+
                 # Regenerate HTML
                 html_path = self.correction_manager.regenerate_html()
 
@@ -263,7 +267,8 @@ class ComparisonViewer:
                 # Apply all corrections
                 result = self.correction_manager.apply_document_wide_corrections(corrections, user_prompt)
 
-                # Update html_path reference
+                # Invalidate cache and update html_path reference
+                self.correction_manager.invalidate_cache()
                 if result['success']:
                     self.html_path = Path(result['html_path'])
 
@@ -317,9 +322,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s input.pdf output/
-  %(prog)s input.pdf output/ --port 8080
-  %(prog)s input.pdf output/ --no-browser
+  %(prog)s input.pdf output/final_document_friendly.html
+  %(prog)s input.pdf output/final_document_judge_friendly.html --port 8080
+  %(prog)s input.pdf output/final_document_friendly.html --no-browser
         """
     )
     parser.add_argument(
@@ -328,9 +333,9 @@ Examples:
         help='Path to original PDF file'
     )
     parser.add_argument(
-        'output_dir',
+        'html_path',
         type=str,
-        help='Path to output directory containing final_document_friendly.html'
+        help='Path to HTML file to view (e.g., final_document_friendly.html or final_document_judge_friendly.html)'
     )
     parser.add_argument(
         '--port',
@@ -349,7 +354,7 @@ Examples:
     try:
         viewer = ComparisonViewer(
             Path(args.pdf_path),
-            Path(args.output_dir)
+            Path(args.html_path)
         )
         viewer.launch(port=args.port, auto_open=not args.no_browser)
     except FileNotFoundError as e:

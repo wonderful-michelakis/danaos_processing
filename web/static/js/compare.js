@@ -87,11 +87,36 @@ class DocumentComparator {
             // Inject HTML content
             this.htmlContent.innerHTML = bodyContent.innerHTML;
 
+            // Render any mermaid diagrams in the injected content
+            this.renderMermaidDiagrams();
+
             console.log('HTML content loaded');
         } catch (error) {
             console.error('HTML loading error:', error);
             throw new Error('Failed to load HTML');
         }
+    }
+
+    renderMermaidDiagrams() {
+        /**
+         * Find and render all mermaid diagram blocks in the HTML panel.
+         * Uses the globally exposed mermaidLib from the module script.
+         */
+        const mermaidBlocks = this.htmlContent.querySelectorAll('pre.mermaid');
+        if (mermaidBlocks.length === 0) return;
+
+        // Wait for mermaid library to load, then render
+        const tryRender = () => {
+            if (window.mermaidLib) {
+                console.log(`Rendering ${mermaidBlocks.length} mermaid diagram(s)...`);
+                window.mermaidLib.run({ nodes: mermaidBlocks });
+            } else {
+                // Retry after short delay if library hasn't loaded yet
+                setTimeout(tryRender, 200);
+            }
+        };
+
+        tryRender();
     }
 
     async renderPage(pageNum) {
