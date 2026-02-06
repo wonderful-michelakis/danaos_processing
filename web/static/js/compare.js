@@ -256,8 +256,8 @@ class DocumentComparator {
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Don't interfere if user is typing in input field
-            if (e.target === this.pageNumInput) return;
+            // Don't interfere if user is typing in input field or modal is open
+            if (this.shouldIgnoreKeyboardShortcut(e)) return;
 
             switch(e.key) {
                 case 'ArrowLeft':
@@ -293,6 +293,39 @@ class DocumentComparator {
 
         // Panel resizing
         this.setupPanelResizing();
+    }
+
+    shouldIgnoreKeyboardShortcut(e) {
+        /**
+         * Check if keyboard shortcuts should be ignored
+         * Returns true if:
+         * - User is typing in an input/textarea/contenteditable element
+         * - Any modal is open
+         */
+
+        // Check if typing in input field
+        const tagName = e.target.tagName.toLowerCase();
+        const isTypingField = tagName === 'input' ||
+                             tagName === 'textarea' ||
+                             e.target.contentEditable === 'true';
+
+        if (isTypingField) return true;
+
+        // Check if any modal is open
+        const correctionModal = document.getElementById('correction-modal');
+        const aiModal = document.getElementById('document-ai-modal');
+
+        const isCorrectionModalOpen = correctionModal &&
+                                     correctionModal.style.display !== 'none' &&
+                                     correctionModal.style.display !== '';
+
+        const isAiModalOpen = aiModal &&
+                             aiModal.style.display !== 'none' &&
+                             aiModal.style.display !== '';
+
+        if (isCorrectionModalOpen || isAiModalOpen) return true;
+
+        return false;
     }
 
     setupPanelResizing() {
